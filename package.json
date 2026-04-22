@@ -1,0 +1,32 @@
+{
+  "name": "edu-ai-platform",
+  "version": "0.1.0",
+  "description": "教培AI运营中台 - Sam的教培AI",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "electron-store": "^10.0.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.0"
+  },
+  "build": {
+    "appId": "com.edu-ai.platform",
+    "productName": "Sam的教培AI",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}

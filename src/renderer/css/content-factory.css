@@ -1,0 +1,368 @@
+/* ===== 内容工厂布局 ===== */
+.factory-layout {
+  display: flex;
+  gap: 24px;
+  height: calc(100vh - var(--titlebar-height) - 120px);
+}
+
+.factory-input {
+  width: 380px;
+  min-width: 380px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.factory-output {
+  flex: 1;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 模式切换 ===== */
+.mode-tabs {
+  display: flex;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.15s;
+}
+
+.mode-tab.active {
+  background: var(--accent-blue);
+  color: #fff;
+}
+
+.mode-tab:not(.active):hover {
+  color: var(--text-primary);
+}
+
+.input-mode {
+  display: none;
+}
+
+.input-mode.active {
+  display: block;
+}
+
+/* ===== 标签输入 ===== */
+.tag-input-area {
+  position: relative;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--accent-blue-dim);
+  color: var(--accent-blue);
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.tag-remove {
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.tag-remove:hover {
+  opacity: 1;
+}
+
+.tag-input {
+  margin-top: 0;
+}
+
+/* ===== 风格选择 ===== */
+.style-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.style-btn {
+  padding: 6px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.style-btn:hover {
+  border-color: var(--border-light);
+  color: var(--text-primary);
+}
+
+.style-btn.active {
+  background: var(--accent-blue-dim);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+/* ===== 输出区域 ===== */
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.output-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.output-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* 空状态 */
+.output-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.output-empty p {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* 结果卡片 */
+.output-results {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.result-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.result-card:hover {
+  border-color: var(--border-light);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.result-type {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.result-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.result-body {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.result-body .title-line {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--accent-blue);
+  margin-bottom: 8px;
+}
+
+.result-body .tag-line {
+  color: var(--accent-blue);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* 加载状态 */
+.output-loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== 对话模式 ===== */
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-msg {
+  display: flex;
+  gap: 10px;
+}
+
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.ai-msg .msg-avatar {
+  background: var(--accent-blue-dim);
+  color: var(--accent-blue);
+}
+
+.user-msg {
+  flex-direction: row-reverse;
+}
+
+.user-msg .msg-avatar {
+  background: var(--bg-active);
+  color: var(--text-secondary);
+}
+
+.msg-content {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ai-msg .msg-content {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+.user-msg .msg-content {
+  background: var(--accent-blue-dim);
+  border: 1px solid rgba(79, 125, 245, 0.3);
+  color: var(--text-primary);
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.chat-textarea {
+  min-height: 42px;
+  max-height: 120px;
+  resize: none;
+  font-family: inherit;
+}
+
+.btn-send {
+  padding: 10px 20px;
+  background: var(--accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-send:hover {
+  background: var(--accent-blue-hover);
+}
+
+/* ===== 生成动画 ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-card {
+  animation: fadeInUp 0.3s ease-out;
+}

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sam的教培AI</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/content-factory.css">
+</head>
+<body>
+  <!-- 自定义标题栏 -->
+  <div id="titlebar">
+    <div class="titlebar-drag">
+      <span class="app-logo">◆</span>
+      <span class="app-title">Sam的教培AI</span>
+    </div>
+    <div class="titlebar-controls">
+      <button class="tb-btn" id="btn-minimize">─</button>
+      <button class="tb-btn" id="btn-maximize">□</button>
+      <button class="tb-btn tb-close" id="btn-close">✕</button>
+    </div>
+  </div>
+
+  <!-- 主布局 -->
+  <div id="app">
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+      <div class="sidebar-section">
+        <div class="nav-item active" data-page="content-factory">
+          <span class="nav-icon">✦</span>
+          <span class="nav-label">智能内容工厂</span>
+        </div>
+        <div class="nav-item" data-page="edu-assistant">
+          <span class="nav-icon">◉</span>
+          <span class="nav-label">AI教务助手</span>
+        </div>
+        <div class="nav-item" data-page="dashboard">
+          <span class="nav-icon">▣</span>
+          <span class="nav-label">数据看板</span>
+        </div>
+        <div class="nav-item" data-page="parent-ai">
+          <span class="nav-icon">◈</span>
+          <span class="nav-label">家长沟通AI</span>
+        </div>
+      </div>
+      <div class="sidebar-section sidebar-bottom">
+        <div class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙</span>
+          <span class="nav-label">系统设置</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main id="content">
+      <!-- 智能内容工厂页面 -->
+      <div id="page-content-factory" class="page active">
+        <div class="page-header">
+          <h1>智能内容工厂</h1>
+          <p class="page-desc">输入课程信息，一键生成全渠道获客内容</p>
+        </div>
+
+        <div class="factory-layout">
+          <!-- 左侧：输入区 -->
+          <div class="factory-input">
+            <!-- 模式切换 -->
+            <div class="mode-tabs">
+              <button class="mode-tab active" data-mode="form">📋 表单模式</button>
+              <button class="mode-tab" data-mode="chat">💬 对话模式</button>
+            </div>
+
+            <!-- 表单模式 -->
+            <div id="form-mode" class="input-mode active">
+              <div class="form-group">
+                <label>机构名称</label>
+                <input type="text" id="org-name" placeholder="如：星辰教育" class="form-input">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>课程类型</label>
+                  <select id="course-type" class="form-input">
+                    <option value="">请选择</option>
+                    <option value="语文">语文</option>
+                    <option value="数学">数学</option>
+                    <option value="英语">英语</option>
+                    <option value="物理">物理</option>
+                    <option value="化学">化学</option>
+                    <option value="美术">美术</option>
+                    <option value="编程">编程</option>
+                    <option value="体育">体育</option>
+                    <option value="音乐">音乐</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>目标人群</label>
+                  <select id="target-audience" class="form-input">
+                    <option value="">请选择</option>
+                    <option value="幼小衔接">幼小衔接</option>
+                    <option value="小学">小学</option>
+                    <option value="初中">初中</option>
+                    <option value="高中">高中</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>核心卖点</label>
+                <div class="tag-input-area">
+                  <div class="tags" id="selling-tags"></div>
+                  <input type="text" id="selling-input" placeholder="输入卖点按回车添加" class="form-input tag-input">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>促销信息</label>
+                <input type="text" id="promo-info" placeholder="如：9.9元体验课 / 限时8折" class="form-input">
+              </div>
+              <div class="form-group">
+                <label>话术风格</label>
+                <div class="style-options">
+                  <button class="style-btn active" data-style="professional">正式专业</button>
+                  <button class="style-btn" data-style="warm">亲切温暖</button>
+                  <button class="style-btn" data-style="casual">接地气</button>
+                  <button class="style-btn" data-style="custom">自定义</button>
+                </div>
+              </div>
+              <div id="custom-style-input" class="form-group" style="display:none;">
+                <label>自定义风格描述</label>
+                <textarea id="custom-style" placeholder="描述你想要的风格，如：活泼搞笑，多用网络梗" class="form-input form-textarea"></textarea>
+              </div>
+              <button class="btn-generate" id="btn-generate">
+                <span class="gen-icon">✦</span> 一键生成全渠道内容
+              </button>
+            </div>
+
+            <!-- 对话模式 -->
+            <div id="chat-mode" class="input-mode">
+              <div class="chat-container" id="chat-container">
+                <div class="chat-msg ai-msg">
+                  <div class="msg-avatar">AI</div>
+                  <div class="msg-content">你好！我是你的内容创作助手。告诉我你想推广什么课程，我来帮你写出最打动家长的内容。</div>
+                </div>
+              </div>
+              <div class="chat-input-area">
+                <textarea id="chat-input" placeholder="描述你的需求..." class="form-input chat-textarea"></textarea>
+                <button class="btn-send" id="btn-chat-send">发送</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧：输出区 -->
+          <div class="factory-output">
+            <div class="output-header">
+              <h2>生成结果</h2>
+              <div class="output-actions">
+                <button class="btn-secondary" id="btn-copy-all">📋 全部复制</button>
+                <button class="btn-secondary" id="btn-save-fav">⭐ 收藏</button>
+              </div>
+            </div>
+
+            <!-- 空状态 -->
+            <div id="output-empty" class="output-empty">
+              <div class="empty-icon">✦</div>
+              <p>填写左侧信息，点击生成</p>
+              <p class="empty-hint">支持小红书 / 朋友圈 / 家长群 / 抖音脚本</p>
+            </div>
+
+            <!-- 生成结果 -->
+            <div id="output-results" class="output-results" style="display:none;">
+              <!-- 小红书 -->
+              <div class="result-card" data-type="xiaohongshu">
+                <div class="result-header">
+                  <span class="result-type">📕 小红书笔记</span>
+                  <div class="result-actions">
+                    <button class="btn-icon" title="复制">📋</button>
+                    <button class="btn-icon" title="重新生成">🔄</button>
+                  </div>
+                </div>
+                <div class="result-body" id="result-xiaohongshu"></div>
+              </div>
+
+              <!-- 朋友圈 -->
+              <div class="result-card" data-type="moments">
+                <div class="result-header">
+                  <span class="result-type">💬 朋友圈文案</span>
+                  <div class="result-actions">
+                    <button class="btn-icon" title="复制">📋</button>
+                    <button class="btn-icon" title="重新生成">🔄</button>
+                  </div>
+                </div>
+                <div class="result-body" id="result-moments"></div>
+              </div>
+
+              <!-- 家长群话术 -->
+              <div class="result-card" data-type="parent-group">
+                <div class="result-header">
+                  <span class="result-type">👨‍👩‍👧 家长群话术</span>
+                  <div class="result-actions">
+                    <button class="btn-icon" title="复制">📋</button>
+                    <button class="btn-icon" title="重新生成">🔄</button>
+                  </div>
+                </div>
+                <div class="result-body" id="result-parent-group"></div>
+              </div>
+
+              <!-- 抖音脚本 -->
+              <div class="result-card" data-type="douyin">
+                <div class="result-header">
+                  <span class="result-type">🎬 抖音口播脚本</span>
+                  <div class="result-actions">
+                    <button class="btn-icon" title="复制">📋</button>
+                    <button class="btn-icon" title="重新生成">🔄</button>
+                  </div>
+                </div>
+                <div class="result-body" id="result-douyin"></div>
+              </div>
+            </div>
+
+            <!-- 生成中状态 -->
+            <div id="output-loading" class="output-loading" style="display:none;">
+              <div class="loading-spinner"></div>
+              <p>AI正在创作中...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI教务助手页面（占位） -->
+      <div id="page-edu-assistant" class="page">
+        <div class="page-header">
+          <h1>AI教务助手</h1>
+          <p class="page-desc">智能排课 · 续费预警 · 学员管理</p>
+        </div>
+        <div class="placeholder-content">
+          <div class="placeholder-icon">◉</div>
+          <p>模块开发中...</p>
+        </div>
+      </div>
+
+      <!-- 数据看板页面（占位） -->
+      <div id="page-dashboard" class="page">
+        <div class="page-header">
+          <h1>数据看板</h1>
+          <p class="page-desc">生源漏斗 · 转化分析 · 财务概览</p>
+        </div>
+        <div class="placeholder-content">
+          <div class="placeholder-icon">▣</div>
+          <p>模块开发中...</p>
+        </div>
+      </div>
+
+      <!-- 家长沟通AI页面（占位） -->
+      <div id="page-parent-ai" class="page">
+        <div class="page-header">
+          <h1>家长沟通AI</h1>
+          <p class="page-desc">智能话术 · 沟通辅助 · 情绪识别</p>
+        </div>
+        <div class="placeholder-content">
+          <div class="placeholder-icon">◈</div>
+          <p>模块开发中...</p>
+        </div>
+      </div>
+
+      <!-- 系统设置页面（占位） -->
+      <div id="page-settings" class="page">
+        <div class="page-header">
+          <h1>系统设置</h1>
+          <p class="page-desc">机构配置 · API设置 · 数据管理</p>
+        </div>
+        <div class="placeholder-content">
+          <div class="placeholder-icon">⚙</div>
+          <p>模块开发中...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/content-factory.js"></script>
+</body>
+</html>

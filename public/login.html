@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教培AI运营中台 - 登录</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: #0f1117;
+      color: #e8eaf0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-container {
+      width: 420px;
+      padding: 48px 40px;
+      background: #1a1d27;
+      border-radius: 16px;
+      border: 1px solid #2d3348;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .logo-area {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .logo-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #4f7df5, #8b5cf6);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    .logo-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .logo-subtitle {
+      font-size: 13px;
+      color: #8b90a0;
+      margin-top: 6px;
+    }
+    .tab-bar {
+      display: flex;
+      background: #0f1117;
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #8b90a0;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #4f7df5;
+      color: #fff;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #8b90a0;
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      background: #0f1117;
+      border: 1px solid #2d3348;
+      border-radius: 8px;
+      color: #e8eaf0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: #4f7df5;
+    }
+    .form-group input::placeholder {
+      color: #5a5f72;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #4f7df5, #6b93ff);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(79,125,245,0.4);
+    }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .error-msg {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #ef4444;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .success-msg {
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.3);
+      color: #34d399;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .footer-text {
+      text-align: center;
+      font-size: 12px;
+      color: #5a5f72;
+      margin-top: 24px;
+    }
+    .register-fields { display: none; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-area">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-title">教培AI运营中台</div>
+      <div class="logo-subtitle">一台电脑，AI运营全搞定</div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('login')">登录</button>
+      <button class="tab-btn" onclick="switchTab('register')">注册</button>
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="successMsg" class="success-msg"></div>
+
+    <form id="authForm" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label>邮箱</label>
+        <input type="email" id="email" placeholder="请输入邮箱" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="password" placeholder="请输入密码（至少6位）" required minlength="6" autocomplete="current-password">
+      </div>
+
+      <div class="register-fields" id="registerFields">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" id="name" placeholder="您的姓名" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>手机号</label>
+          <input type="tel" id="phone" placeholder="选填" autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label>机构名称</label>
+          <input type="text" id="orgName" placeholder="您的教培机构名称">
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">登录</button>
+    </form>
+
+    <div class="footer-text">
+      首月免费试用 · 随时一键导出数据 · 您永远是数据的主人
+    </div>
+  </div>
+
+  <script>
+    let currentTab = 'login';
+    const API_BASE = window.location.origin;
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const registerFields = document.getElementById('registerFields');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      if (tab === 'register') {
+        registerFields.style.display = 'block';
+        submitBtn.textContent = '注册';
+        document.getElementById('name').required = true;
+        document.getElementById('orgName').required = true;
+      } else {
+        registerFields.style.display = 'none';
+        submitBtn.textContent = '登录';
+        document.getElementById('name').required = false;
+        document.getElementById('orgName').required = false;
+      }
+      
+      hideMessages();
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+      const el = document.getElementById('successMsg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMsg').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'none';
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      hideMessages();
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = currentTab === 'login' ? '登录中...' : '注册中...';
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        let endpoint, body;
+        if (currentTab === 'login') {
+          endpoint = '/api/auth/login';
+          body = { email, password };
+        } else {
+          endpoint = '/api/auth/register';
+          body = {
+            email,
+            password,
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            orgName: document.getElementById('orgName').value
+          };
+        }
+
+        const res = await fetch(API_BASE + endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.error || '操作失败');
+          return;
+        }
+
+        // 保存token
+        localStorage.setItem('edu_ai_token', data.token);
+        localStorage.setItem('edu_ai_user', JSON.stringify(data.user));
+
+        showSuccess(currentTab === 'login' ? '登录成功！' : '注册成功！首月免费试用已开启');
+
+        // 跳转到主页
+        setTimeout(() => {
+          window.location.href = '/index.html';
+        }, 800);
+
+      } catch (err) {
+        showError('网络错误，请检查网络连接');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = currentTab === 'login' ? '登录' : '注册';
+      }
+    }
+  </script>
+</body>
+</html>
