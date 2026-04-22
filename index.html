@@ -983,6 +983,77 @@
     .suggestion-type { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
     .suggestion-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 
+    /* ===== 人效看板 ===== */
+    .performance-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .performance-table th {
+      text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .performance-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
+    .performance-table tr:last-child td { border-bottom: none; }
+    .performance-table tr:hover td { background: var(--bg-hover); }
+    .perf-rank { font-weight: 700; color: var(--accent-blue); }
+    .perf-rate-bar {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .perf-bar-bg {
+      flex: 1; height: 6px; background: var(--bg-tertiary);
+      border-radius: 3px; overflow: hidden;
+    }
+    .perf-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .perf-val { font-size: 12px; min-width: 36px; text-align: right; }
+    .perf-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+    /* ===== 通话录入表单 ===== */
+    .call-form-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;
+    }
+    .call-form-grid .full-col { grid-column: 1 / -1; }
+    .intention-stars { display: flex; gap: 6px; }
+    .star-btn {
+      width: 28px; height: 28px; border: 1px solid var(--border-color);
+      background: var(--bg-tertiary); color: var(--text-muted);
+      border-radius: 4px; cursor: pointer; font-size: 14px;
+      transition: all 0.15s ease;
+    }
+    .star-btn.active { background: var(--accent-orange); border-color: var(--accent-orange); color: #fff; }
+    .star-btn:hover { border-color: var(--accent-orange); }
+
+    /* ===== 线索弹窗 ===== */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--bg-secondary); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); padding: 24px; width: 480px; max-width: 95vw;
+    }
+    .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-form-grid .full { grid-column: 1 / -1; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .form-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+    .form-group { display: flex; flex-direction: column; }
+
+    /* ===== AI日报输出区 ===== */
+    .daily-report-box {
+      background: var(--bg-tertiary); border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm); padding: 14px; font-size: 13px;
+      line-height: 1.8; color: var(--text-secondary); min-height: 80px;
+      white-space: pre-wrap;
+    }
+    .sales-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .sales-tab {
+      padding: 6px 16px; border-radius: 6px; font-size: 13px; cursor: pointer;
+      border: 1px solid var(--border-color); background: var(--bg-tertiary);
+      color: var(--text-secondary); transition: all 0.15s;
+    }
+    .sales-tab.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .sales-tab-content { display: none; }
+    .sales-tab-content.active { display: block; }
+
     /* ===== 空表格 ===== */
     .empty-table {
       padding: 40px; text-align: center; color: var(--text-muted);
@@ -1799,14 +1870,14 @@
       <div id="page-sales" class="page">
         <div class="page-header">
           <h1>销售助手</h1>
-          <p class="page-desc">跟单管理 · 成交预测 · 话术推荐 · 销售漏斗</p>
+          <p class="page-desc">跟单管理 · 人效评价 · 通话录入 · AI日报</p>
         </div>
         <div class="sales-layout">
           <!-- 销售概览卡片 -->
           <div class="stats-row">
             <div class="stat-card">
               <div class="stat-value" id="sales-total-leads">0</div>
-              <div class="stat-label">本月线索</div>
+              <div class="stat-label">总线索数</div>
               <div class="stat-trend up">—</div>
             </div>
             <div class="stat-card">
@@ -1816,7 +1887,7 @@
             </div>
             <div class="stat-card">
               <div class="stat-value" id="sales-revenue">¥0</div>
-              <div class="stat-label">本月成交额</div>
+              <div class="stat-label">已成交金额</div>
               <div class="stat-trend">—</div>
             </div>
             <div class="stat-card">
@@ -1824,75 +1895,197 @@
               <div class="stat-label">待跟进</div>
               <div class="stat-trend urgent">需处理</div>
             </div>
+            <div class="stat-card">
+              <div class="stat-value" id="sales-call-total">0</div>
+              <div class="stat-label">今日拨出</div>
+              <div class="stat-trend" id="sales-connect-rate">接通率 —</div>
+            </div>
           </div>
 
           <div class="sales-main">
-            <!-- 销售漏斗 -->
+            <!-- 销售漏斗（动态数据） -->
             <div class="sales-panel">
               <div class="panel-header">
-                <h3>销售漏斗</h3>
-                <button class="btn-secondary" onclick="alert('功能开发中')">+ 新增线索</button>
+                <h3>📊 销售漏斗</h3>
               </div>
-              <div class="funnel-container">
+              <div class="funnel-container" id="sales-funnel-container">
                 <div class="funnel-stage">
-                  <div class="funnel-bar" style="width:100%;background:var(--accent-blue);">
+                  <div class="funnel-bar" id="funnel-bar-0" style="width:100%;background:var(--accent-blue);">
                     <span class="funnel-label">线索咨询</span>
-                    <span class="funnel-count">0</span>
+                    <span class="funnel-count" id="funnel-count-0">0</span>
                   </div>
                 </div>
                 <div class="funnel-stage">
-                  <div class="funnel-bar" style="width:70%;background:var(--accent-purple);">
+                  <div class="funnel-bar" id="funnel-bar-1" style="width:70%;background:var(--accent-purple);">
                     <span class="funnel-label">试听预约</span>
-                    <span class="funnel-count">0</span>
+                    <span class="funnel-count" id="funnel-count-1">0</span>
                   </div>
                 </div>
                 <div class="funnel-stage">
-                  <div class="funnel-bar" style="width:45%;background:var(--accent-orange);">
+                  <div class="funnel-bar" id="funnel-bar-2" style="width:45%;background:var(--accent-orange);">
                     <span class="funnel-label">到店体验</span>
-                    <span class="funnel-count">0</span>
+                    <span class="funnel-count" id="funnel-count-2">0</span>
                   </div>
                 </div>
                 <div class="funnel-stage">
-                  <div class="funnel-bar" style="width:25%;background:var(--accent-green);">
+                  <div class="funnel-bar" id="funnel-bar-3" style="width:25%;background:var(--accent-green);">
                     <span class="funnel-label">成交报名</span>
-                    <span class="funnel-count">0</span>
+                    <span class="funnel-count" id="funnel-count-3">0</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- AI销售建议 -->
+            <!-- 通话录入 -->
             <div class="sales-panel">
               <div class="panel-header">
-                <h3>AI销售建议</h3>
+                <h3>📞 通话录入</h3>
+                <span style="font-size:12px;color:var(--text-muted)">今日实时录入</span>
               </div>
-              <div class="ai-suggestions">
-                <div class="suggestion-card">
-                  <div class="suggestion-type">📊 数据洞察</div>
-                  <p>导入学员数据后，AI将自动分析销售趋势并给出优化建议</p>
+              <div class="call-form-grid">
+                <div class="form-group">
+                  <div class="form-label">客户姓名</div>
+                  <input class="form-input" id="call-name" placeholder="输入客户姓名">
                 </div>
-                <div class="suggestion-card">
-                  <div class="suggestion-type">🎯 话术推荐</div>
-                  <p>根据客户阶段自动推荐最佳跟进话术，提升转化率</p>
+                <div class="form-group">
+                  <div class="form-label">电话</div>
+                  <input class="form-input" id="call-phone" placeholder="手机号码">
                 </div>
-                <div class="suggestion-card">
-                  <div class="suggestion-type">⏰ 跟进提醒</div>
-                  <p>智能识别最佳跟进时间，不错过任何成交机会</p>
+                <div class="form-group">
+                  <div class="form-label">课程顾问</div>
+                  <input class="form-input" id="call-advisor" placeholder="顾问姓名">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">是否接通</div>
+                  <select class="form-input" id="call-connected">
+                    <option value="1">✅ 已接通</option>
+                    <option value="0">❌ 未接通</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">意向等级</div>
+                  <div class="intention-stars" id="call-stars">
+                    <button class="star-btn" onclick="setCallStar(1)">★</button>
+                    <button class="star-btn" onclick="setCallStar(2)">★</button>
+                    <button class="star-btn" onclick="setCallStar(3)">★</button>
+                    <button class="star-btn" onclick="setCallStar(4)">★</button>
+                    <button class="star-btn" onclick="setCallStar(5)">★</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="form-label">意向课程</div>
+                  <input class="form-input" id="call-course" placeholder="如：英语/数学/美术">
+                </div>
+                <div class="form-group full-col">
+                  <div class="form-label">备注</div>
+                  <input class="form-input" id="call-note" placeholder="家长反馈、关键信息">
                 </div>
               </div>
+              <button class="btn-primary" style="width:100%" onclick="submitCallRecord()">✅ 提交记录</button>
+            </div>
+          </div>
+
+          <!-- 人效排行 + AI日报 -->
+          <div class="sales-main">
+            <!-- 人效排行 -->
+            <div class="sales-panel" style="flex:1.4">
+              <div class="panel-header">
+                <h3>🏆 销售人效排行</h3>
+                <select class="form-input" style="width:90px;padding:5px 8px;font-size:12px;" id="perf-date-range" onchange="renderPerformance()">
+                  <option value="today">今日</option>
+                  <option value="week">本周</option>
+                  <option value="all">全部</option>
+                </select>
+              </div>
+              <div id="performance-table-container">
+                <div class="perf-empty">暂无通话数据，请先录入通话记录</div>
+              </div>
+            </div>
+
+            <!-- AI日报 -->
+            <div class="sales-panel" style="flex:1">
+              <div class="panel-header">
+                <h3>🤖 AI销售日报</h3>
+                <button class="btn-primary" style="padding:5px 12px;font-size:12px" onclick="generateSalesDailyReport()">一键生成</button>
+              </div>
+              <div class="daily-report-box" id="sales-daily-report">点击「一键生成」，AI将分析今日销售数据并生成战报</div>
             </div>
           </div>
 
           <!-- 线索列表 -->
           <div class="sales-panel full-width">
             <div class="panel-header">
-              <h3>线索管理</h3>
+              <h3>📋 线索管理</h3>
               <div class="panel-actions">
                 <button class="btn-secondary" onclick="switchToImport()">📥 Excel导入</button>
                 <button class="btn-secondary" onclick="openLeadModal()">+ 手动添加</button>
+                <select class="form-input" id="leads-filter" style="padding:5px 8px;font-size:12px;width:100px" onchange="renderSalesLeads()">
+                  <option value="all">全部</option>
+                  <option value="待跟进">待跟进</option>
+                  <option value="进行中">进行中</option>
+                  <option value="试听预约">试听预约</option>
+                  <option value="到店体验">到店体验</option>
+                  <option value="已签约">已签约</option>
+                  <option value="已流失">已流失</option>
+                </select>
               </div>
             </div>
             <div id="sales-leads-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 线索添加弹窗 -->
+      <div class="modal-overlay" id="lead-modal">
+        <div class="modal-box">
+          <div class="modal-title">➕ 新增线索</div>
+          <div class="modal-form-grid">
+            <div class="form-group">
+              <div class="form-label">客户姓名 *</div>
+              <input class="form-input" id="modal-lead-name" placeholder="必填">
+            </div>
+            <div class="form-group">
+              <div class="form-label">联系电话</div>
+              <input class="form-input" id="modal-lead-phone" placeholder="手机号">
+            </div>
+            <div class="form-group">
+              <div class="form-label">课程顾问</div>
+              <input class="form-input" id="modal-lead-advisor" placeholder="负责人">
+            </div>
+            <div class="form-group">
+              <div class="form-label">意向课程</div>
+              <input class="form-input" id="modal-lead-course" placeholder="如：英语/数学">
+            </div>
+            <div class="form-group">
+              <div class="form-label">来源渠道</div>
+              <select class="form-input" id="modal-lead-source">
+                <option>小红书</option>
+                <option>朋友圈</option>
+                <option>地推</option>
+                <option>家长转介绍</option>
+                <option>抖音</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <div class="form-label">跟进阶段</div>
+              <select class="form-input" id="modal-lead-status">
+                <option>待跟进</option>
+                <option>进行中</option>
+                <option>试听预约</option>
+                <option>到店体验</option>
+                <option>已签约</option>
+                <option>已流失</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <div class="form-label">备注</div>
+              <input class="form-input" id="modal-lead-note" placeholder="关键信息、家长反馈">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeLeadModal()">取消</button>
+            <button class="btn-primary" onclick="saveLeadFromModal()">保存线索</button>
           </div>
         </div>
       </div>
