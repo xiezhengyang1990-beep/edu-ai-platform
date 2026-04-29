@@ -43,6 +43,26 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const wb = XLSX.readFile(filePath);
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
+    
+    // Safeguard: truncate unreasonably large sheet ranges (e.g., A1:XFA1048576)
+    if (ws['!ref']) {
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      const MAX_ROWS = 2000, MAX_COLS = 50;
+      let truncated = false;
+      if (range.e.r - range.s.r > MAX_ROWS) {
+        range.e.r = range.s.r + MAX_ROWS;
+        truncated = true;
+      }
+      if (range.e.c - range.s.c > MAX_COLS) {
+        range.e.c = range.s.c + MAX_COLS;
+        truncated = true;
+      }
+      if (truncated) {
+        ws['!ref'] = XLSX.utils.encode_range(range);
+        console.log(`  ⚠️  Truncated sheet range to ${XLSX.utils.encode_range(range)}`);
+      }
+    }
+    
     const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
     
     if (!data || data.length < 2) {
