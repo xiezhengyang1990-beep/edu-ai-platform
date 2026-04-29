@@ -431,8 +431,8 @@ body::after {
 .mobile-nav .mnav-item.active{color:var(--accent-1)}
 .login-page .login-box{padding:32px 24px}
 .metric-card .metric-value{font-size:22px}
-.chart-wrapper{height:260px;max-height:260px;min-height:260px;position:relative;overflow:hidden !important;flex-shrink:0;contain:layout size}
-#revenueChart{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-height:260px!important;display:block!important}
+.chart-wrapper{height:260px;max-height:260px;min-height:260px;position:relative;overflow:hidden;flex-shrink:0}
+#revenueChart{display:block;width:100%;height:100%}
 .alert-dashboard{flex-wrap:wrap;gap:12px 24px}
 .filter-tabs{overflow-x:auto;white-space:nowrap;flex-wrap:nowrap;padding-bottom:4px}
 .filter-tab{flex-shrink:0}
@@ -1279,7 +1279,7 @@ function renderChart(trendData, chartType) {
   }
   const ctx = document.getElementById('revenueChart').getContext('2d');
   if (chartInstance) { chartInstance.destroy(); }
-  // Canvas is position:absolute inside .chart-wrapper, can't affect layout
+  // Canvas inside fixed-height .chart-wrapper — Chart.js sizes to parent
   
   const labels = trendData ? trendData.map(d => d.month || d.label || '') : ['1月','2月','3月','4月','5月','6月'];
   const revData = trendData ? trendData.map(d => d.revenue || d.amount || d.value || 0) : [120,190,230,260,210,280];
