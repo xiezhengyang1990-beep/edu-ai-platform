@@ -58,6 +58,10 @@ router.get('/dashboard/summary', (req, res) => {
     const prevEnrollTotal = prevEnroll.length ? prevEnroll[0].total : 0;
     const enrollChange = prevEnrollTotal > 0 ? ((enrollmentTotal - prevEnrollTotal) / prevEnrollTotal * 100).toFixed(1) : 0;
 
+    // Monthly trend for chart (frontend loadDashboard expects this on summary)
+    const monthlyData = db.query(`SELECT month, SUM(revenue) as rev FROM revenue_data GROUP BY month ORDER BY month`);
+    const monthlyTrend = monthlyData.map(m => ({ month: m.month, value: m.rev, revenue: m.rev }));
+
     res.json({
       revenue: {
         current: currentTotal,
@@ -76,7 +80,8 @@ router.get('/dashboard/summary', (req, res) => {
         completion: enrollmentTotal > 0 ? Math.round((enrollmentTotal / (enrollmentTotal * 1.3)) * 100) : 0,
         trend: enrollmentTotal > 30 ? 'up' : 'flat'
       },
-      pending_renewal: { count: pendingCount }
+      pending_renewal: { count: pendingCount },
+      monthlyTrend: monthlyTrend  // for chart rendering
     });
 
   } catch (err) {
@@ -111,7 +116,8 @@ router.get('/dashboard/trend', (req, res) => {
         revenue: d.revenue,
         cost: d.cost,
         profit: d.revenue - d.cost,
-        renewal_rate: rate ? parseFloat(rate) : null
+        renewal_rate: rate ? parseFloat(rate) : null,
+        renewal: d.renewal || d.renewalRate || (rate ? parseFloat(rate) : null)  // chart-compat field
       };
     });
 
