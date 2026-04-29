@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-29T18:29:36.935Z",
+  "entries": {
+    "memory:memory/2026-04-30.md:1:30": {
+      "key": "memory:memory/2026-04-30.md:1:30",
+      "path": "memory/2026-04-30.md",
+      "startLine": 1,
+      "endLine": 30,
+      "source": "memory",
+      "snippet": "# 2026-04-30 Daily Notes ## Date: Thursday, April 30, 2026 (Asia/Shanghai) --- ### 方舟智管 ArkInsight — 项目进展（凌晨状态更新） **当前阶段：** 深夜通宵开发，用户已睡。我是监工，子代理是员工。 #### 核心原则（用户反复强调） - 长任务：按板块拆，一个做完再做下一个 - 开始前先问用户（语音描述业务逻辑），弄明白再动手 - 自己验证完再汇报，3次不通跳过，不卡死 - 小步提交（每次改完 git commit） - 不打扰用户睡觉 - **API Key 规则（23:58 新增）**：子代理 → 阿里云百炼 `sk-129547aa04b74d578561664666b89c8c`（免费 token，用完换 key，崩了不心疼）；主代理（我）→ DeepSeek `sk-0bdc794856cd43c389eb5e7ac476ed5d`（稳，不能崩） #### 项目配置 - Node v24.14.0, npm packages: express@5.2.1, xlsx, sql.js, multer - better-sqlite3 编译失败（node-gyp make 在容器环境下不行） - 数据库决定用 sql.js（纯 JS/WASM，无原生依赖） - DeepSeek API key: `sk-0bdc794856cd43c389eb5e7ac476ed5d` - 阿里云百炼 API key: `sk-129547aa04b74d57856166466",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-29T18:29:36.935Z",
+      "lastRecalledAt": "2026-04-29T18:29:36.935Z",
+      "queryHashes": [
+        "eaadf663a835"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "asia/shanghai",
+        "v24.14.0",
+        "5.2.1",
+        "sql.js",
+        "better-sqlite3",
+        "node-gyp",
+        "js/wasm",
+        "sk-129547aa04b74d57856166466"
+      ]
+    },
+    "memory:memory/2026-04-30.md:25:51": {
+      "key": "memory:memory/2026-04-30.md:25:51",
+      "path": "memory/2026-04-30.md",
+      "startLine": 25,
+      "endLine": 51,
+      "source": "memory",
+      "snippet": "- 项目路径：`/home/node/.openclaw/workspace/fangzhou/` - 数据文件路径：`/home/node/.openclaw/workspace/数据表/给oc/`（10个真实 Excel 文件） - 工作区磁盘：overlay 49G/27G/21G，/dev/vda3 #### 已完成状态（04/30 00:45） - ✅ 数据库升级：db.json → SQLite (sql.js)，6张表 - ✅ 后端子服务：Express 5 + multer + XLSX + DeepSeek AI 模块 - ✅ 上传管道：AI模板匹配(营收/续费/招生) → 字段自动提取 → 入库 - ✅ 驾驶舱API：summary/trend/alerts/ranking/diagnosis/unified - ✅ AI智囊聊天：DeepSeek带经营数据上下文 - ✅ 所有API端点对齐：20+前端兼容路径 - ✅ 已上传5个真实文件（营收2个 + 招生2个 + 市场计划1个） - ✅ 图表数据修复：summary端点加了monthlyTrend - ✅ DeepSeek API 30s超时保护 #### 当前数据状态 - 营收：¥163,180（2026年4月，7个月趋势数据） - 续费：25%（4条记录含流失预警） - 招生：121人（森宏56 + 上南65） - 预警：营收下降51.4%告警、续费到期提醒、学员流失 #### 已知问题 1. 【语言】春续暑待跟进学员明细及动作.xlsx（1.4MB/5sheets）上传卡死，需改为异步处理 2",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-29T18:29:36.935Z",
+      "lastRecalledAt": "2026-04-29T18:29:36.935Z",
+      "queryHashes": [
+        "eaadf663a835"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "home/node",
+        "openclaw/workspace/fangzhou",
+        "openclaw/workspace/数据表/给oc",
+        "49g/27g/21g",
+        "dev/vda3",
+        "04/30",
+        "db.json",
+        "sql.js"
+      ]
+    }
+  }
+}

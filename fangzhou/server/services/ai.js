@@ -1,8 +1,18 @@
 /**
- * 方舟智管 ArkInsight — DeepSeek AI 服务
+ * 方舟智管 ArkInsight — AI 服务
+ * 
+ * Two providers:
+ *   1. 阿里云百炼 (DashScope) → 文件上传/表格解析等批量任务（免费token，崩了不心疼）
+ *   2. DeepSeek → AI智囊聊天、经营诊断等稳定任务（不能崩）
  */
-const API_KEY = 'sk-0bdc794856cd43c389eb5e7ac476ed5d';
-const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+// ── 阿里云百炼（用于表格上传处理） ──
+const ALI_API_KEY = 'sk-129547aa04b74d578561664666b89c8c';
+const ALI_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+
+// ── DeepSeek（用于AI智囊等核心功能） ──
+const DS_API_KEY = 'sk-0bdc794856cd43c389eb5e7ac476ed5d';
+const DS_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 const TEMPLATE_DEFS = {
   revenue: {
@@ -42,18 +52,54 @@ const TEMPLATE_DEFS = {
 };
 
 /**
- * 呼叫 DeepSeek API
+ * 呼叫阿里云百炼 API（批量任务，崩了不心疼）
  */
-async function callDeepSeek(messages, options = {}) {
+async function callAliyun(messages, options = {}) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+  const timeout = setTimeout(() => controller.abort(), 30000);
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(ALI_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Authorization': `Bearer ${ALI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: options.model || 'qwen-plus',
+        messages,
+        temperature: options.temperature || 0.3,
+        max_tokens: options.maxTokens || 2000,
+        stream: false
+      }),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`阿里云百炼 API error: ${response.status} - ${err}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
+ * 呼叫 DeepSeek API（核心功能，不能崩）
+ */
+async function callDeepSeek(messages, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(DS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DS_API_KEY}`
       },
       body: JSON.stringify({
         model: 'deepseek-chat',
@@ -107,10 +153,10 @@ async function identifyTableType(headers, sampleRows) {
 ${tablePreview}`;
 
   try {
-    const result = await callDeepSeek([
+    const result = await callAliyun([
       { role: 'system', content: '你是一个教培行业表格分类AI，只输出JSON。' },
       { role: 'user', content: prompt }
-    ], { temperature: 0.2 });
+    ], { temperature: 0.2, model: 'qwen-plus' });
 
     const parsed = JSON.parse(result.replace(/```json|```/g, '').trim());
     return {
@@ -159,10 +205,10 @@ ${preview}
 }`;
 
   try {
-    const result = await callDeepSeek([
+    const result = await callAliyun([
       { role: 'system', content: '你是教培数据提取专家，只输出JSON。' },
       { role: 'user', content: prompt }
-    ], { temperature: 0.2, maxTokens: 2000 });
+    ], { temperature: 0.2, maxTokens: 2000, model: 'qwen-plus' });
 
     const parsed = JSON.parse(result.replace(/```json|```/g, '').trim());
     const fieldMapping = parsed.field_mapping || {};
@@ -263,10 +309,10 @@ ${JSON.stringify(data, null, 2)}
 }`;
 
   try {
-    const result = await callDeepSeek([
+    const result = await callAliyun([
       { role: 'system', content: '你是教培机构经营分析专家，简洁实用，只说真话。只输出JSON。' },
       { role: 'user', content: prompt }
-    ], { temperature: 0.5, maxTokens: 1500 });
+    ], { temperature: 0.5, maxTokens: 1500, model: 'qwen-plus' });
 
     return JSON.parse(result.replace(/```json|```/g, '').trim());
   } catch (e) {
@@ -310,6 +356,7 @@ async function chat(messages) {
 }
 
 module.exports = {
+  callAliyun,
   callDeepSeek,
   identifyTableType,
   extractFields,

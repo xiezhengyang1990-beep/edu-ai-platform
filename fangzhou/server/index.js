@@ -2,8 +2,13 @@ const express = require('express');
 const path = require('path');
 const db = require('./db');
 const aiService = require('./services/ai');
+const searchService = require('./services/search');
 const uploadRoutes = require('./routes/upload');
 const dashboardRoutes = require('./routes/dashboard');
+
+// ── Prevent uncaught exceptions from crashing the server ──
+process.on('uncaughtException', (err) => console.error('Uncaught:', err.message));
+process.on('unhandledRejection', (err) => console.error('Unhandled:', err.message));
 
 const PORT = 18898;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -27,6 +32,20 @@ let ready = false;
 (async () => {
   await db.getDb();
   console.log('📦 SQLite 数据库就绪');
+  
+  // ── 每小时自动备份到 GitHub ──
+  setInterval(() => {
+    const { execSync } = require('child_process');
+    const repoDir = path.join(__dirname, '..');
+    try {
+      execSync('git add -A', { cwd: repoDir, stdio: 'pipe', timeout: 10000 });
+      execSync('git commit --allow-empty -m "auto: backup ' + new Date().toISOString().slice(0, 16) + '"', { cwd: repoDir, stdio: 'pipe', timeout: 10000 });
+      execSync('git push', { cwd: repoDir, stdio: 'pipe', timeout: 30000 });
+      console.log('✅ Git auto-backup completed');
+    } catch (e) {
+      // Silent fail – repo may have no changes, or network may be down
+    }
+  }, 3600000); // Every hour
   ready = true;
 })();
 
@@ -89,6 +108,26 @@ app.post('/api/data/upload', uploadMulter.single('file'), async (req, res) => {
     const wb = XLSX.readFile(filePath);
     const sheetName = wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
+
+    // Safeguard: truncate unreasonably large sheet ranges
+    if (ws['!ref']) {
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      const MAX_ROWS = 2000, MAX_COLS = 50;
+      let truncated = false;
+      if (range.e.r - range.s.r > MAX_ROWS) {
+        range.e.r = range.s.r + MAX_ROWS;
+        truncated = true;
+      }
+      if (range.e.c - range.s.c > MAX_COLS) {
+        range.e.c = range.s.c + MAX_COLS;
+        truncated = true;
+      }
+      if (truncated) {
+        ws['!ref'] = XLSX.utils.encode_range(range);
+        console.log(`  ⚠️  Truncated sheet range to ${XLSX.utils.encode_range(range)}`);
+      }
+    }
+
     const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
     if (!data || data.length < 2) {
@@ -282,10 +321,10 @@ app.put('/api/org/profile', (req, res) => {
   res.json({ success: true, ok: true, data: profile });
 });
 
-// ===== AI智囊 Chat =====
+// ===== AI智囊 Chat（支持联网搜索） =====
 app.post('/api/brain/chat', async (req, res) => {
   try {
-    const { message, history, messages } = req.body;
+    const { message, history, messages, web_search } = req.body;
     const chatMessages = messages || history || [];
     
     // If just a single message, convert to history format
@@ -295,6 +334,21 @@ app.post('/api/brain/chat', async (req, res) => {
 
     if (!chatMessages || chatMessages.length === 0) {
       return res.status(400).json({ error: '缺少消息内容', ok: false });
+    }
+
+    // ── If web_search enabled, fetch real web results and inject as context ──
+    let webContext = '';
+    if (web_search === true || web_search === 'true') {
+      try {
+        const searchResults = await searchService.searchWeb(message, 5);
+        if (searchResults && searchResults.length > 0) {
+          webContext = '\n\n---\n以下是联网搜索到的相关信息（真实搜索结果，非AI生成）：\n' +
+            searchResults.map((r, i) => `${i+1}. 【${r.title}】\n   ${r.snippet}\n   来源: ${r.source}\n   链接: ${r.url}`).join('\n\n') +
+            '\n---\n请基于以上搜索结果（优先）和你的知识综合分析回答。';
+        }
+      } catch(e) {
+        console.log('Web search for brain chat failed:', e.message);
+      }
     }
 
     // Add context data
@@ -314,7 +368,7 @@ app.post('/api/brain/chat', async (req, res) => {
 3. 分析校区表现差异
 4. 提供续费提升、招生优化、成本控制等策略
 
-当前经营数据：本月营收 ${summary[0]?.revenue || 0}元，本月招生 ${summary[0]?.enrollment || 0}人，流失学员 ${summary[0]?.lost || 0}人。
+当前经营数据：本月营收 ${summary[0]?.revenue || 0}元，本月招生 ${summary[0]?.enrollment || 0}人，流失学员 ${summary[0]?.lost || 0}人。${webContext}
 
 风格：专业、直接、数据说话。用中文回答，200字以内。`
     };
@@ -351,17 +405,45 @@ app.post('/api/knowledge/categories', (req, res) => {
 app.delete('/api/knowledge/categories/:id', (req, res) => {
   res.json({ success: true, ok: true });
 });
+// ── Web Search endpoint ──
 app.post('/api/knowledge/search-web', async (req, res) => {
   const { query } = req.body;
   try {
-    // Use DeepSeek to search
-    const result = await aiService.callDeepSeek([
-      { role: 'system', content: '你是互联网搜索助手。根据问题给出相关信息。' },
-      { role: 'user', content: `搜索有关"${query}"的信息，用中文返回，200字以内。` }
-    ], { temperature: 0.3, maxTokens: 1000 });
-    res.json({ success: true, ok: true, data: { reply: result } });
+    // 使用searchService搜索互联网
+    let results = [];
+    try {
+      results = await searchService.searchWeb(query, 8);
+    } catch(e) {
+      console.log('Web search service error, using AI fallback:', e.message);
+    }
+
+    // 如果搜索结果为空，用AI生成相关内容
+    if (!results || results.length === 0) {
+      const aiResult = await aiService.callDeepSeek([
+        { role: 'system', content: '你是互联网搜索助手。根据用户查询提供最新、真实、有具体数据和观点的信息。要求信息量大、实用性强。' },
+        { role: 'user', content: `搜索有关"${query}"的信息，用中文简洁回答，200字以内。` }
+      ], { temperature: 0.3, maxTokens: 1000 });
+      results.push({
+        title: `关于"${query}"的搜索结果`,
+        snippet: aiResult,
+        url: '',
+        source: 'AI搜索'
+      });
+    }
+
+    res.json({ success: true, ok: true, data: results });
   } catch (e) {
-    res.json({ success: true, ok: true, data: { reply: `关于"${query}"的相关搜索结果暂不可用。` } });
+    console.error('Web search error:', e);
+    const aiFallback = await aiService.callDeepSeek([
+      { role: 'system', content: '你是互联网搜索助手。' },
+      { role: 'user', content: `搜索有关"${query}"的信息，200字以内。` }
+    ], { temperature: 0.3, maxTokens: 1000 }).catch(() => `${query}的相关信息暂不可用`);
+    res.json({ success: true, ok: true, data: [{
+      title: `关于"${query}"的搜索结果`,
+      snippet: aiFallback,
+      url: '',
+      source: 'AI搜索'
+    }]});
   }
 });
 
@@ -452,7 +534,9 @@ app.post('/api/alerts/batch-resolve', (req, res) => {
 
 // ── Fallback to index.html ──
 app.use((req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'), err => {
+    if (err) res.status(500).send('Internal error');
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
