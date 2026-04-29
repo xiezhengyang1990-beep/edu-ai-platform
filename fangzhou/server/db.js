@@ -76,6 +76,22 @@ function initSchema() {
   `);
   
   db.run(`
+    CREATE TABLE IF NOT EXISTS app_config (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT DEFAULT (datetime('now','localtime'))
+    )
+  `);
+  
+  db.run(`
+    CREATE TABLE IF NOT EXISTS content_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      content_data TEXT,
+      created_at TEXT DEFAULT (datetime('now','localtime'))
+    )
+  `);
+  
+  db.run(`
     CREATE TABLE IF NOT EXISTS enrollment_data (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       file_id INTEGER REFERENCES uploaded_files(id),

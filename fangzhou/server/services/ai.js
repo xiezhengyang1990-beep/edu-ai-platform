@@ -232,6 +232,7 @@ async function chat(messages) {
 }
 
 module.exports = {
+  callDeepSeek,
   identifyTableType,
   extractFields,
   generateDiagnosis,
