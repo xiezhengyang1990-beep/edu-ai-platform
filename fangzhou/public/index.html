@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0e17">
+  <meta name="description" content="方舟智管 — 教培校长数据驾驶舱">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0e17'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' font-family='sans-serif' fill='%23818cf8'%3E⛵%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <title>方舟智管 — 教培校长数据驾驶舱 · ArkInsight</title>
+<style>
+/* ── Design System v3.0 ── */
+:root {
+  --bg-deep: #060b18;
+  --bg-card: #0d1321;
+  --bg-elevated: #111a2e;
+  --border-subtle: rgba(99,102,241,0.25);
+  --border-active: rgba(99,102,241,0.3);
+  --accent-1: #6366f1;
+  --accent-2: #8b5cf6;
+  --accent-3: #a78bfa;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --glass-bg: rgba(13,19,33,0.7);
+  --glass-border: rgba(99,102,241,0.08);
+  --shadow-glow: 0 0 40px rgba(99,102,241,0.08);
+  --radius-card: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Inter','Noto Sans SC',sans-serif;background:var(--bg-deep);color:var(--text-primary);overflow:hidden;font-weight:400}
+a{text-decoration:none;color:inherit}button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;color:inherit;background:transparent;border:none;outline:none}
+::selection{background:rgba(99,102,241,0.3);color:#fff}
+
+/* ── Animated Mesh Background ── */
+body::before {
+  content:'';position:fixed;inset:0;z-index:-1;
+  background: 
+    radial-gradient(ellipse 80% 60% at 0% 20%, rgba(99,102,241,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(167,139,250,0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #060b18 0%, #0a1020 40%, #060b18 100%);
+}
+
+/* ── Subtle Grid Overlay ── */
+body::after {
+  content:'';position:fixed;inset:0;z-index:-1;opacity:0.4;
+  background-image: 
+    linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 70% at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at center, black 30%, transparent 70%);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(99,102,241,0.3)}
+
+/* ── Layout ── */
+.page{display:none;opacity:0;animation:none}
+.page-with-bg{position:relative}
+.page.active{display:block;opacity:1;animation:fadeSlideIn .4s ease;padding-bottom:80px}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+#app{display:flex;height:100vh;width:100vw;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:240px;min-width:240px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;z-index:100;position:relative;overflow:hidden}
+.sidebar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:160px;background:url('img/dashboard-banner.png') center/cover;opacity:0.18;pointer-events:none;z-index:0}
+.sidebar-logo{padding:28px 20px 20px;border-bottom:1px solid var(--glass-border);position:relative}
+.sidebar-logo h1{font-size:20px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+.sidebar-logo h1 .logo-icon{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:22px;filter:drop-shadow(0 0 8px rgba(99,102,241,0.3))}
+.sidebar-logo .subtitle{font-size:11px;color:var(--text-muted);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:16px 10px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:500;color:var(--text-secondary);transition:all .2s ease;cursor:pointer;margin-bottom:3px;position:relative}
+.nav-item:hover{color:var(--text-primary);background:rgba(99,102,241,0.08)}
+.nav-item.active{color:#fff;background:linear-gradient(135deg,rgba(99,102,241,0.18),rgba(139,92,246,0.08));border-left:3px solid var(--accent-1);box-shadow:inset 0 0 20px rgba(99,102,241,0.05)}
+.nav-item .nav-icon{width:20px;text-align:center;font-size:15px;color:currentColor}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 6px rgba(99,102,241,0.4))}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--glass-border);font-size:10.5px;color:var(--text-muted);text-align:center;line-height:1.8;letter-spacing:0.3px}
+
+/* ── Main ── */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.page-container{flex:1;overflow-y:auto;padding:28px 32px 40px}
+
+/* ── Page Header ── */
+.page-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--glass-border)}
+.page-header h2{font-size:22px;font-weight:700;letter-spacing:-0.3px;display:flex;align-items:center;gap:10px;margin-right:auto;color:var(--text-primary)}
+.page-header h2 i{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 6px rgba(99,102,241,0.2))}
+.page-header .btn-ghost{background:rgba(99,102,241,0.06)!important;color:var(--accent-1)!important;border:1px solid rgba(99,102,241,0.1)}
+.page-header .btn-ghost:hover{background:rgba(99,102,241,0.25)!important}
+
+/* ── Cards ── */
+.card{
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;opacity:0;
+  background: radial-gradient(600px at var(--mx,50%) var(--my,50%), rgba(99,102,241,0.06) 0%, transparent 60%);
+  transition: opacity .4s ease;pointer-events:none;
+}
+.card:hover::before{opacity:1}
+.card:hover{
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 30px rgba(99,102,241,0.06);
+}
+.card-title{font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ── Metric Cards ── */
+.metric-card{
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 24px 28px;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::before{
+  content:'';position:absolute;top:-60%;right:-20%;width:200px;height:200px;
+  border-radius:50%;opacity:0.5;
+  filter:blur(60px);pointer-events:none;transition:opacity .4s;
+}
+.metric-card:hover::before{opacity:0.8}
+.metric-card:hover{
+  border-color: var(--border-active);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 56px rgba(0,0,0,0.5), 0 0 40px rgba(99,102,241,0.06);
+}
+.metric-card .card-bg{position:absolute;inset:0;opacity:0.35;background-size:cover;background-position:center;pointer-events:none;z-index:0}
+.metric-card .metric-label{font-size:13px;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.metric-card .metric-value{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.metric-card .metric-value.green{background:linear-gradient(135deg,#34d399,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.metric-card .metric-value.amber{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.metric-card .metric-value.blue{background:linear-gradient(135deg,#60a5fa,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.metric-card .metric-sub{font-size:13px;margin-top:8px;display:flex;align-items:center;gap:4px;color:var(--text-muted)}
+.metric-card .metric-bar{width:100%;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;margin-top:14px;overflow:hidden}
+.metric-card .metric-bar-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.metric-card:first-child::before{background:radial-gradient(circle at 80% 20%, rgba(52,211,153,0.15), transparent 60%)}
+.metric-card:nth-child(2)::before{background:radial-gradient(circle at 80% 20%, rgba(251,191,36,0.15), transparent 60%)}
+.metric-card:nth-child(3)::before{background:radial-gradient(circle at 80% 20%, rgba(96,165,250,0.15), transparent 60%)}
+
+/* ── Buttons ── */
+.btn-primary{
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover{
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+}
+.btn-primary:active{transform:translateY(0);filter:brightness(1)}
+.btn-secondary{background:var(--bg-elevated);color:var(--text-primary);padding:10px 24px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;border:1px solid var(--border-subtle);transition:all .2s ease;cursor:pointer}
+.btn-secondary:hover{background:rgba(99,102,241,0.08);border-color:var(--border-active)}
+.btn-ghost{padding:8px 16px;border-radius:var(--radius-xs);font-size:13px;color:var(--text-secondary);transition:all .2s ease;cursor:pointer}
+.btn-ghost:hover{background:rgba(99,102,241,0.1);color:var(--accent-1)}
+
+/* ── Form Elements ── */
+.form-select{padding:8px 16px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:13px;cursor:pointer;transition:border-color .2s}
+.form-select:hover,.form-select:focus{border-color:var(--border-active)}
+
+/* ── Alerts ── */
+.ai-diagnosis-wrapper{position:relative;overflow:hidden}
+.ai-diagnosis-wrapper::after{content:'';position:absolute;top:0;right:0;width:300px;height:100%;background:url('img/ai-bg.png') center/cover;opacity:0.4;pointer-events:none;z-index:0}
+.alert-item{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:12px;margin-bottom:8px;transition:all .2s ease;cursor:pointer;position:relative;overflow:hidden}
+.alert-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 2px 2px 0}
+.alert-item:hover{background:rgba(255,255,255,0.03)}
+.alert-red{background:rgba(239,68,68,0.08)}
+.alert-red::before{background:linear-gradient(180deg,#ef4444,#dc2626);box-shadow:0 0 12px rgba(239,68,68,0.3)}
+.alert-orange{background:rgba(249,115,22,0.08)}
+.alert-orange::before{background:linear-gradient(180deg,#f97316,#ea580c);box-shadow:0 0 12px rgba(249,115,22,0.3)}
+.alert-yellow{background:rgba(234,179,8,0.08)}
+.alert-yellow::before{background:linear-gradient(180deg,#eab308,#ca8a04);box-shadow:0 0 12px rgba(234,179,8,0.3)}
+.alert-blue{background:rgba(59,130,246,0.08)}
+.alert-blue::before{background:linear-gradient(180deg,#3b82f6,#2563eb);box-shadow:0 0 12px rgba(59,130,246,0.3)}
+.alert-item.resolved{opacity:0.35}
+.alert-item.resolved::after{content:'\2713 已处理';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:#22c55e;font-weight:600}
+
+/* ── Upload Zone ── */
+.upload-zone{border:2px dashed var(--border-subtle);border-radius:var(--radius-card);padding:48px 24px;text-align:center;transition:all .3s ease;cursor:pointer;background:var(--bg-card)}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent-1);background:rgba(99,102,241,0.04)}
+.upload-zone .upload-icon{font-size:48px;color:var(--text-muted);margin-bottom:12px}
+.upload-zone.dragover .upload-icon{color:var(--accent-1)}
+.upload-zone .upload-text{font-size:16px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.upload-zone .upload-hint{font-size:13px;color:var(--text-muted)}
+
+/* ── Progress Bar ── */
+.progress-bar-container{width:100%;margin-top:16px;display:none}
+.progress-bar-track{width:100%;height:8px;background:var(--bg-elevated);border-radius:4px;overflow:hidden;border:1px solid var(--border-subtle)}
+.progress-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));border-radius:4px;transition:width .3s ease}
+.progress-bar-text{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--text-muted)}
+
+/* ── Alert Dashboard ── */
+.alert-dashboard{display:flex;gap:24px;align-items:center;margin-bottom:20px;padding:16px 20px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-card)}
+.alert-gauge{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .2s ease;padding:8px 12px;border-radius:12px}
+.alert-gauge:hover{background:rgba(255,255,255,0.03);transform:translateY(-2px)}
+.alert-gauge.active-gauge{background:rgba(99,102,241,0.08)}
+.alert-gauge-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;position:relative;transition:all .3s ease}
+.alert-gauge-circle.red{background:conic-gradient(#ef4444 0deg, rgba(239,68,68,0.2) 0deg);box-shadow:0 0 16px rgba(239,68,68,0.2)}
+.alert-gauge-circle.orange{background:conic-gradient(#f97316 0deg, rgba(249,115,22,0.2) 0deg);box-shadow:0 0 16px rgba(249,115,22,0.2)}
+.alert-gauge-circle.yellow{background:conic-gradient(#eab308 0deg, rgba(234,179,8,0.2) 0deg);box-shadow:0 0 16px rgba(234,179,8,0.2)}
+.alert-gauge-circle .inner-circle{width:40px;height:40px;border-radius:50%;background:var(--bg-card);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.alert-gauge-label{font-size:11px;color:var(--text-muted)}
+.alert-gauge-count{font-size:13px;font-weight:600;color:var(--text-secondary)}
+
+/* ── CSS Donut Chart ── */
+.alert-donut{position:relative;width:100px;height:100px;margin:0 auto;flex-shrink:0}
+.alert-donut svg{width:100px;height:100px;transform:rotate(-90deg)}
+.alert-donut circle{fill:none;stroke-width:20;cx:50;cy:50;r:35}
+.alert-donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;font-size:11px;color:var(--text-muted);line-height:1.3}
+.alert-donut-center .donut-total{font-size:22px;font-weight:700;color:var(--text-primary)}
+.alert-donut-legend{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--text-secondary)}
+.alert-donut-legend .legend-item{display:flex;align-items:center;gap:4px;cursor:pointer;padding:2px 8px;border-radius:6px;transition:all .2s ease}
+.alert-donut-legend .legend-item:hover,.alert-donut-legend .legend-item.active-legend{background:rgba(99,102,241,0.08);color:var(--text-primary)}
+.alert-donut-legend .legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* ── Chat ── */
+.chat-container{display:flex;flex-direction:column;max-height:calc(100vh - 140px)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;gap:12px}
+.chat-msg{max-width:80%;padding:14px 18px;border-radius:16px;font-size:14px;line-height:1.7;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.chat-msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;border-bottom-right-radius:4px}
+.chat-msg.ai{align-self:flex-start;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);border-bottom-left-radius:4px}
+.chat-msg .msg-time{font-size:11px;color:var(--text-muted);margin-top:6px;text-align:right}
+.chat-msg.user .msg-time{color:rgba(255,255,255,0.5)}
+.chat-msg .msg-bold{font-weight:700}
+.chat-msg .msg-list{list-style:decimal;padding-left:20px;margin-top:6px}
+.chat-msg .msg-list li{margin-bottom:4px}
+.chat-input-area{display:flex;gap:12px;padding:16px 0 0;border-top:1px solid var(--glass-border)}
+.chat-input-area input{flex:1;padding:12px 16px;border-radius:var(--radius-sm);background:var(--bg-elevated);color:var(--text-primary);font-size:14px;border:1px solid var(--border-subtle)}
+.chat-input-area input::placeholder{color:var(--text-muted)}
+.chat-input-area input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+
+/* ── Knowledge ── */
+.knowledge-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:20px;cursor:pointer;transition:all .25s ease}
+.knowledge-card:hover{border-color:var(--border-active);transform:translateY(-2px)}
+.knowledge-card .k-title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text-primary)}
+.knowledge-card .k-summary{font-size:13px;color:var(--text-secondary);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.knowledge-card .k-badge{display:inline-block;padding:2px 8px;border-radius:10px;background:rgba(99,102,241,0.25);color:var(--accent-1);font-size:11px;font-weight:500}
+.knowledge-card .k-meta{margin-bottom:8px}
+.knowledge-card .k-full{display:none;font-size:14px;color:var(--text-primary);line-height:1.8;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle)}
+.cat-tree-item{transition:all .2s ease;cursor:pointer}
+.cat-tree-item:hover{background:rgba(99,102,241,0.06)}
+.knowledge-card.expanded .k-full{display:block}
+.knowledge-card.expanded .k-summary{-webkit-line-clamp:unset}
+
+/* ── Content Cards ── */
+.content-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:20px;transition:all .25s ease}
+.content-card:hover{border-color:var(--border-active);transform:translateY(-2px)}
+.content-card .c-title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text-primary)}
+.content-card .c-preview{font-size:13px;color:var(--text-secondary);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.content-card .c-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.content-card .c-tag{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(99,102,241,0.1);color:var(--accent-1)}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .25s ease}
+.modal-overlay.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-content{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:80vh;overflow-y:auto;animation:modalSlide .3s cubic-bezier(.4,0,.2,1)}
+@keyframes modalSlide{from{opacity:0;transform:scale(0.95) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-content h2{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--text-primary)}
+.modal-field{margin-bottom:16px}
+.modal-field label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
+.modal-field input,.modal-field textarea,.modal-field select{width:100%;padding:10px 14px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:14px;transition:border-color .2s}
+.modal-field input:focus,.modal-field textarea:focus,.modal-field select:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+.modal-field textarea{min-height:100px;resize:vertical}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+
+/* ── Login ── */
+.login-page{position:fixed;inset:0;background:linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.55)), url('img/login-bg.png') center/cover;display:flex;align-items:center;justify-content:center;z-index:2000}
+.login-page::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(99,102,241,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(139,92,246,0.05) 0%, transparent 50%);
+}
+.login-page .login-box{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:24px;padding:48px 40px;width:400px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.5), 0 0 60px rgba(99,102,241,0.05);animation:fadeIn .5s ease;position:relative;overflow:hidden}
+.login-page .login-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--accent-1),var(--accent-2),transparent);
+}
+.login-page .login-box h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:4px}
+.login-page .login-box h1 .logo-icon{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-page .login-box .login-sub{text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:32px}
+.login-page .login-box .login-field{margin-bottom:16px}
+.login-page .login-box .login-field label{font-size:13px;color:var(--text-secondary);margin-bottom:6px;display:block}
+.login-page .login-box .login-field input{width:100%;padding:12px 16px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:15px;transition:border-color .2s}
+.login-page .login-box .login-field input:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+.login-page .login-box .login-btn{width:100%;justify-content:center;padding:12px;font-size:15px}
+.login-page .login-box .login-error{color:#ef4444;font-size:13px;text-align:center;margin-bottom:12px;display:none}
+.login-page .login-box .login-footer{text-align:center;color:var(--text-muted);font-size:12px;margin-top:24px}
+
+/* ── Tag Input ── */
+.tag-input-container{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);min-height:44px;cursor:text;transition:border-color .2s}
+.tag-input-container:focus-within{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(99,102,241,0.25)}
+.tag-input-container .tag{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:rgba(99,102,241,0.25);color:var(--accent-1);font-size:13px}
+.tag-input-container .tag .tag-remove{cursor:pointer;font-size:12px;opacity:0.6;transition:opacity .15s}
+.tag-input-container .tag .tag-remove:hover{opacity:1}
+.tag-input-container input{flex:1;min-width:80px;border:none;background:transparent;color:var(--text-primary);font-size:13px;padding:4px 0}
+.tag-input-container input::placeholder{color:var(--text-muted)}
+
+/* ── Tables ── */
+.mapping-table{width:100%;border-collapse:collapse}
+.mapping-table th,.mapping-table td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid var(--border-subtle)}
+.mapping-table th{color:var(--text-secondary);font-weight:500;background:var(--bg-deep)}
+.mapping-table td select{padding:6px 10px;border-radius:var(--radius-xs);background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:13px;width:100%}
+
+/* ── Filters ── */
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filter-tab{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;background:var(--bg-elevated);color:var(--text-secondary);cursor:pointer;transition:all .2s ease;border:1px solid transparent}
+.filter-tab:hover{background:rgba(99,102,241,0.08);color:var(--text-primary);border-color:var(--border-subtle)}
+.filter-tab.active{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(99,102,241,0.25)}
+.filter-tab.filter-tab-sm{padding:4px 10px;font-size:11px}
+
+/* ── Float Btn ── */
+.float-btn{position:fixed;bottom:32px;right:32px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(99,102,241,0.4);transition:all .2s cubic-bezier(.4,0,.2,1);cursor:pointer;z-index:50;border:none}
+.float-btn:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,0.5)}
+
+/* ── Loading ── */
+.loading-spinner{width:32px;height:32px;border:3px solid rgba(99,102,241,0.1);border-top-color:var(--accent-1);border-radius:50%;animation:spin .8s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{text-align:center;color:var(--text-muted);font-size:14px;margin-top:8px}
+
+/* ── Mobile Nav ── */
+.mobile-nav{display:none}
+.gradient-text{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-title{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--text-primary)}
+
+/* ── Grid System ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-2>div{display:flex;flex-direction:column}
+.grid-2>div>.card{flex:1}
+#analysisAreaGrid{align-items:start}
+#analysisAreaGrid>div{display:block}
+#analysisAreaGrid>div>.card{height:auto;flex:none}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-center{display:flex;align-items:center;justify-content:center}
+
+/* ── Chart Toggles ── */
+.chart-type-btn{padding:4px 12px;border-radius:var(--radius-xs);font-size:12px;font-weight:500;background:var(--bg-elevated);color:var(--text-muted);border:1px solid var(--border-subtle);cursor:pointer;transition:all .15s ease}
+.chart-type-btn:hover{border-color:var(--accent-1);color:var(--accent-1)}
+.chart-type-btn.active{background:rgba(99,102,241,0.25);color:var(--accent-1);border-color:rgba(99,102,241,0.2)}
+.header-actions{display:flex;align-items:center;gap:8px}
+
+/* ── Quick Question Buttons ── */
+.quick-q-btn{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15);color:var(--accent-1);padding:5px 10px;border-radius:14px;font-size:12px;cursor:pointer;transition:all .2s ease}
+.quick-q-btn:hover{background:rgba(99,102,241,0.18);border-color:var(--accent-1);transform:translateY(-1px)}
+
+/* ── Small Button ── */
+.btn-sm{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--radius-xs);font-size:12px;font-weight:500;background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border-subtle);cursor:pointer;transition:all .2s ease}
+.btn-sm:hover{background:rgba(99,102,241,0.08);color:var(--accent-1);border-color:var(--border-active)}
+
+/* ── Content Card Inner ── */
+.cc-badge{display:inline-block;padding:2px 8px;border-radius:10px;background:rgba(99,102,241,0.25);color:var(--accent-1);font-size:11px;font-weight:500;margin-bottom:8px}
+.cc-title{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text-primary)}
+.cc-body{font-size:13px;color:var(--text-secondary);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cc-actions{display:flex;gap:6px;margin-top:8px}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px;opacity:0.4}
+
+/* ── Dashboard Hero Banner ── */
+.dashboard-hero{position:relative;margin-bottom:28px;padding:28px 32px;border-radius:var(--radius-card);background:linear-gradient(135deg,rgba(99,102,241,0.15) 0%,rgba(15,23,42,0.45) 100%),url('img/dashboard-banner.png') center/cover;border:1px solid var(--border-subtle);overflow:hidden}
+.dashboard-hero::before{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(99,102,241,0.08),transparent 60%);pointer-events:none;border-radius:50%}
+.dashboard-hero .hero-grid{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;z-index:1}
+.dashboard-hero .hero-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;display:flex;align-items:center;gap:10px}
+.dashboard-hero .hero-title i{background:linear-gradient(135deg,var(--accent-1),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dashboard-hero .hero-sub{font-size:13px;color:var(--text-muted);margin-top:4px}
+.dashboard-hero .hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dashboard-hero .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;background:rgba(52,211,153,0.1);color:#34d399;font-size:12px;font-weight:600;border:1px solid rgba(52,211,153,0.15)}
+
+/* ── Toast ── */
+.toastr{position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:toastIn .3s cubic-bezier(.4,0,.2,1);max-width:360px;display:flex;align-items:center;gap:10px}
+.toastr.success{background:rgba(6,95,70,0.9);border:1px solid rgba(34,197,94,0.2);color:#22c55e}
+.toastr.error{background:rgba(127,29,29,0.9);border:1px solid rgba(239,68,68,0.2);color:#ef4444}
+.toastr.info{background:rgba(30,58,95,0.9);border:1px solid rgba(59,130,246,0.2);color:#60a5fa}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Misc ── */
+.sep{height:1px;background:var(--border-subtle);margin:20px 0}
+.stat-label{font-size:12px;color:var(--text-muted)}
+.stat-val{font-size:16px;font-weight:600;color:var(--text-primary)}
+.ai-insight-loading{text-align:center;padding:16px;color:var(--text-muted);font-size:13px}
+.ai-insight-loading .pulse{display:inline-block;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
+
+/* ── Dot Indicator ── */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:2px}
+
+@media(max-width:1279px){.sidebar{width:64px;min-width:64px}.sidebar-logo h1,.sidebar-logo .subtitle{display:none}.sidebar-logo{padding:16px 12px;text-align:center}.nav-item{justify-content:center;padding:10px 8px;font-size:0;gap:0}.nav-item .nav-icon{font-size:18px}.nav-item.active{border-left:none;border-top:2px solid var(--accent-1)}.sidebar-footer{display:none}.page-container{padding:24px}}
+@media(max-width:1023px){.grid-2:not(#analysisAreaGrid){grid-template-columns:1fr}.grid-2#analysisAreaGrid{grid-template-columns:1fr}#analysisAreaGrid{align-items:stretch;grid-template-columns:1fr!important}}
+@media(max-width:767px){
+.sidebar{display:none}
+.main-content{padding-bottom:64px}
+.page-container{padding:16px}
+.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,19,33,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--glass-border);padding:6px 0 env(safe-area-inset-bottom,6px);justify-content:space-around}
+.mobile-nav .mnav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;font-size:10px;color:var(--text-muted);cursor:pointer;transition:color .2s;border-radius:8px}
+.mobile-nav .mnav-item .mnav-icon{font-size:20px}
+.mobile-nav .mnav-item.active{color:var(--accent-1)}
+.login-page .login-box{padding:32px 24px}
+.metric-card .metric-value{font-size:22px}
+.chart-wrapper{height:260px;max-height:260px;min-height:260px;position:relative;overflow:hidden !important;flex-shrink:0}
+#revenueChart{width:100%!important;max-width:100%!important;display:block;box-sizing:border-box;max-height:260px!important}
+.alert-dashboard{flex-wrap:wrap;gap:12px 24px}
+.filter-tabs{overflow-x:auto;white-space:nowrap;flex-wrap:nowrap;padding-bottom:4px}
+.filter-tab{flex-shrink:0}
+#analysisArea{grid-template-columns:1fr!important}
+#analysisAreaGrid>div{display:block;flex-direction:unset}
+#analysisAreaGrid>div>.card{height:auto}
+#analysisAreaGrid{grid-template-columns:1fr!important}
+.modal-content{width:92%!important;margin:60px auto 0!important;padding:20px!important}
+#knowledgeList{grid-template-columns:1fr!important}
+#contentList{grid-template-columns:1fr!important}
+.card{padding:16px!important;min-height:0}
+.section-title{font-size:15px!important}
+.page-header h2{font-size:18px!important}
+}
+@media(min-width:768px) and (max-width:1279px){.sidebar .nav-item span{display:none}.sidebar-footer{display:none}}
+.card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(99,102,241,0.15),transparent);pointer-events:none}
+/* -- Full Page Backgrounds -- */
+#page-data::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,0.1) 0%,rgba(15,23,42,0.5) 50%,rgba(15,23,42,0.85) 100%),url('img/page-data.png') center/cover;opacity:0.7;pointer-events:none;z-index:0}
+#page-knowledge::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(52,211,153,0.08) 0%,rgba(15,23,42,0.4) 50%,rgba(15,23,42,0.85) 100%),url('img/page-knowledge.png') center/cover;opacity:0.7;pointer-events:none;z-index:0}
+#page-content::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(168,85,247,0.1) 0%,rgba(15,23,42,0.4) 50%,rgba(15,23,42,0.85) 100%),url('img/page-data.png') center/cover;opacity:0.65;pointer-events:none;z-index:0}
+/* -- Content End Markers -- */
+/* ── Page Bottom Markers ── */
+#page-dashboard::after,#page-data::after,#page-content::after,#page-knowledge::after,#page-brain::after,#page-org-profile::after,#page-settings::after{content:'';display:flex;justify-content:center;align-items:center;height:3px;margin-top:40px;margin-bottom:8px;border-radius:2px;clear:both}
+#page-dashboard::after{background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.35) 30%,rgba(99,102,241,0.5) 50%,rgba(99,102,241,0.35) 70%,transparent 100%)}
+#page-data::after{background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.35) 30%,rgba(99,102,241,0.5) 50%,rgba(99,102,241,0.35) 70%,transparent 100%)}
+#page-content::after{background:linear-gradient(90deg,transparent 0%,rgba(168,85,247,0.35) 30%,rgba(168,85,247,0.5) 50%,rgba(168,85,247,0.35) 70%,transparent 100%)}
+#page-knowledge::after{background:linear-gradient(90deg,transparent 0%,rgba(52,211,153,0.35) 30%,rgba(52,211,153,0.5) 50%,rgba(52,211,153,0.35) 70%,transparent 100%)}
+#page-brain::after{background:linear-gradient(90deg,transparent 0%,rgba(139,92,246,0.35) 30%,rgba(139,92,246,0.5) 50%,rgba(139,92,246,0.35) 70%,transparent 100%)}
+#page-org-profile::after{background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.35) 30%,rgba(99,102,241,0.5) 50%,rgba(99,102,241,0.35) 70%,transparent 100%)}
+#page-settings::after{background:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.35) 30%,rgba(99,102,241,0.5) 50%,rgba(99,102,241,0.35) 70%,transparent 100%)}
+/* -- Page Background Container Fix -- */
+#page-data,#page-knowledge,#page-content,#page-dashboard{position:relative}
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <h1><span class="logo-icon"><i class="fas fa-sailboat"></i></span> 方舟智管</h1>
+    <p class="login-sub">教培校长数据驾驶舱</p>
+    <div class="login-field">
+      <label>用户名</label>
+      <input type="text" id="loginUser" placeholder="请输入用户名" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>密码</label>
+      <input type="password" id="loginPass" placeholder="请输入密码" autocomplete="current-password">
+    </div>
+    <div class="login-error" id="loginError">用户名或密码错误</div>
+    <button class="btn-primary login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> 登 录</button>
+    <div class="login-footer">&copy; 2026 诺亚方舟计划</div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h1><span class="logo-icon"><i class="fas fa-sailboat"></i></span> 方舟智管</h1>
+      <div class="subtitle">教培校长数据驾驶舱</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span> <span>驾驶舱</span></div>
+      <div class="nav-item" data-page="data"><span class="nav-icon"><i class="fas fa-file-import"></i></span> <span>数据导入</span></div>
+      <div class="nav-item" data-page="content"><span class="nav-icon"><i class="fas fa-pen-fancy"></i></span> <span>内容工厂</span></div>
+      <div class="nav-item" data-page="brain"><span class="nav-icon"><i class="fas fa-robot"></i></span> <span>AI智囊</span></div>
+      <div class="nav-item" data-page="knowledge"><span class="nav-icon"><i class="fas fa-book-open"></i></span> <span>知识库</span></div>
+      <div class="nav-item" data-page="org-profile"><span class="nav-icon"><i class="fas fa-building"></i></span> <span>机构档案</span></div>
+      <div class="nav-item" data-page="settings"><span class="nav-icon"><i class="fas fa-cog"></i></span> <span>设置</span></div>
+    </nav>
+    <div class="sidebar-footer">v3.0.1 · ArkInsight<br>构建 2026-04-29<br>&copy; 2026 诺亚方舟计划</div>
+  </aside>
+
+  <nav class="mobile-nav">
+    <div class="mnav-item active" data-page="dashboard"><span class="mnav-icon"><i class="fas fa-chart-pie"></i></span><span>驾驶舱</span></div>
+    <div class="mnav-item" data-page="data"><span class="mnav-icon"><i class="fas fa-file-import"></i></span><span>数据</span></div>
+    <div class="mnav-item" data-page="content"><span class="mnav-icon"><i class="fas fa-pen-fancy"></i></span><span>内容</span></div>
+    <div class="mnav-item" data-page="brain"><span class="mnav-icon"><i class="fas fa-robot"></i></span><span>AI</span></div>
+    <div class="mnav-item" data-page="knowledge"><span class="mnav-icon"><i class="fas fa-book-open"></i></span><span>知识库</span></div>
+    <div class="mnav-item" data-page="org-profile"><span class="mnav-icon"><i class="fas fa-building"></i></span><span>档案</span></div>
+    <div class="mnav-item" data-page="settings"><span class="mnav-icon"><i class="fas fa-cog"></i></span><span>设置</span></div>
+  </nav>
+
+  <main class="main-content">
+    <div class="page-container">
+      <!-- Dashboard -->
+      <div class="page active" id="page-dashboard">
+        <div class="dashboard-hero">
+          <div class="hero-grid">
+            <div>
+              <div class="hero-title"><i class="fas fa-chart-pie"></i> 驾驶舱</div>
+              <div class="hero-sub">实时数据 · 智能诊断 · 经营全览 <span class="hero-badge"><i class="fas fa-circle" style="font-size:6px;"></i> 实时</span></div>
+            </div>
+            <div class="hero-actions">
+              <select id="periodSelect" class="form-select">
+                <option value="month">本月</option><option value="quarter">本季度</option><option value="year">本年</option>
+              </select>
+              <span id="periodLabel" style="color:var(--text-muted);font-size:13px;"></span>
+              <button id="diagReportBtn" class="btn-ghost"><i class="fas fa-stethoscope"></i> 诊断报告</button>
+              <button id="exportReportBtn" class="btn-ghost"><i class="fas fa-download"></i> 导出</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-bottom:24px;">
+          <div class="metric-card">
+            <div class="card-bg" style="background-image:url('img/card-revenue.png')"></div>
+            <div class="metric-label"><span class="dot" style="background:#22c55e;"></span> 本月营收</div>
+            <div class="metric-value green" id="revenueValue">&yen;0</div>
+            <div class="metric-sub"><span id="revenueSub">目标完成率 0%</span><span id="revenueTrend" style="margin-left:auto;"></span></div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:0%;background:linear-gradient(90deg,#22c55e,#4ade80);" id="revenueBarFill"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="card-bg" style="background-image:url('img/card-renewal.png')"></div>
+            <div class="metric-label"><span class="dot" style="background:#f59e0b;"></span> 续费率</div>
+            <div class="metric-value amber" id="renewalValue">0%</div>
+            <div class="metric-sub"><span id="renewalSub">环比变化 0%</span><span id="renewalTrend" style="margin-left:auto;"></span></div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);" id="renewalBarFill"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="card-bg" style="background-image:url('img/card-enrollment.png')"></div>
+            <div class="metric-label"><span class="dot" style="background:#3b82f6;"></span> 新增学员</div>
+            <div class="metric-value blue" id="enrollmentValue">0</div>
+            <div class="metric-sub"><span id="enrollmentSub">完成率 0%</span><span id="enrollmentTrend" style="margin-left:auto;"></span></div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:0%;background:linear-gradient(90deg,#3b82f6,#60a5fa);" id="enrollmentBarFill"></div></div>
+          </div>
+        </div>
+        <div class="grid-2" id="analysisAreaGrid">
+          <div>
+            <div class="card" style="">
+              <div class="card-title flex-between">
+                <span><i class="fas fa-chart-line" style="color:var(--accent-1);"></i> 营收趋势</span>
+                <div class="chart-toggles" style="display:flex;gap:4px;">
+                  <button class="chart-type-btn active" data-chart="line">折线</button>
+                  <button class="chart-type-btn" data-chart="bar">柱状</button>
+                </div>
+              </div>
+              <div class="chart-wrapper" style="height:260px;position:relative;"><canvas id="revenueChart"></canvas></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-title" style="justify-content:space-between;"><span><i class="fas fa-bell" style="color:#ef4444;filter:drop-shadow(0 0 4px rgba(239,68,68,0.3));"></i> 经营预警</span>
+              <div class="header-actions" style="gap:6px;">
+                <div id="alertFilter" class="filter-tabs" style="margin-bottom:0;gap:4px;">
+                  <span class="filter-tab active" data-level="all" style="padding:4px 10px;font-size:11px;">全部</span>
+                  <span class="filter-tab filter-tab-sm" data-level="red" style="color:#ef4444;"><i class="fas fa-circle" style="font-size:8px;"></i></span>
+                  <span class="filter-tab filter-tab-sm" data-level="orange" style="color:#f97316;"><i class="fas fa-circle" style="font-size:8px;"></i></span>
+                  <span class="filter-tab filter-tab-sm" data-level="yellow" style="color:#eab308;"><i class="fas fa-circle" style="font-size:8px;"></i></span>
+                  <span class="filter-tab filter-tab-sm" data-level="blue" style="color:#3b82f6;"><i class="fas fa-circle" style="font-size:8px;"></i></span>
+                </div>
+                <button id="batchResolveBtn" class="btn-sm" style="color:#22c55e;border-color:rgba(34,197,94,0.15);background:rgba(34,197,94,0.06);"><i class="fas fa-check-double"></i> 全部处理</button>
+              </div></div>
+              <div id="alertDashboard" class="alert-dashboard">
+                <div class="alert-gauge" data-gauge-level="red" onclick="filterAlertsByGauge('red')">
+                  <div class="alert-gauge-circle red" id="gaugeRed"><div class="inner-circle" id="gaugeRedCount">0</div></div>
+                  <div class="alert-gauge-label">高危</div>
+                  <div class="alert-gauge-count" id="gaugeRedLabel">0条</div>
+                </div>
+                <div class="alert-gauge" data-gauge-level="orange" onclick="filterAlertsByGauge('orange')">
+                  <div class="alert-gauge-circle orange" id="gaugeOrange"><div class="inner-circle" id="gaugeOrangeCount">0</div></div>
+                  <div class="alert-gauge-label">中危</div>
+                  <div class="alert-gauge-count" id="gaugeOrangeLabel">0条</div>
+                </div>
+                <div class="alert-gauge" data-gauge-level="yellow" onclick="filterAlertsByGauge('yellow')">
+                  <div class="alert-gauge-circle yellow" id="gaugeYellow"><div class="inner-circle" id="gaugeYellowCount">0</div></div>
+                  <div class="alert-gauge-label">低危</div>
+                  <div class="alert-gauge-count" id="gaugeYellowLabel">0条</div>
+                </div>
+                <div class="alert-donut" id="alertDonutContainer">
+                  <svg viewBox="0 0 100 100">
+                    <circle id="donutRed" cx="50" cy="50" r="35" stroke="#ef4444" stroke-dasharray="0 220" stroke-linecap="round"/>
+                    <circle id="donutOrange" cx="50" cy="50" r="35" stroke="#f97316" stroke-dasharray="0 220" stroke-linecap="round" style="transform-origin:50px 50px;transform:rotate(0deg);"/>
+                    <circle id="donutYellow" cx="50" cy="50" r="35" stroke="#eab308" stroke-dasharray="0 220" stroke-linecap="round" style="transform-origin:50px 50px;transform:rotate(0deg);"/>
+                  </svg>
+                  <div class="alert-donut-center"><span class="donut-total" id="donutTotal">0</span><br>总预警</div>
+                </div>
+                <div class="alert-donut-legend" id="donutLegend">
+                  <span class="legend-item active-legend" onclick="filterAlertsByGauge('red')"><span class="legend-dot" style="background:#ef4444"></span>高危</span>
+                  <span class="legend-item" onclick="filterAlertsByGauge('orange')"><span class="legend-dot" style="background:#f97316"></span>中危</span>
+                  <span class="legend-item" onclick="filterAlertsByGauge('yellow')"><span class="legend-dot" style="background:#eab308"></span>低危</span>
+                </div>
+              </div>
+              <div id="alertList"><div class="loading-spinner"></div></div>
+            </div>
+          </div>
+        </div>
+            <div class="card" id="rankingCard" style="margin-top:20px;">
+              <div class="card-title"><i class="fas fa-building" style="color:#f59e0b;"></i> 校区排名</div>
+              <div id="campusRanking"><div class="loading-spinner"></div></div>
+            </div>
+        <div class="card ai-diagnosis-wrapper" style="margin-top:20px;">
+          <div class="card-title"><i class="fas fa-brain" style="color:var(--accent-1);"></i> AI 经营诊断</div>
+          <div id="aiInsight"><div class="ai-insight-loading"><span class="pulse"><i class="fas fa-spinner fa-spin"></i> 分析经营数据中...</span></div></div>
+        </div>
+      </div>
+
+      <!-- Data Import -->
+      <div class="page page-with-bg" id="page-data">
+        <div class="page-header"><h2><i class="fas fa-file-import"></i> 数据导入</h2></div>
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="upload-text">拖拽文件到此处，或点击上传</div>
+          <div class="upload-hint">支持 CSV、Excel 格式</div>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+        </div>
+        <div class="progress-bar-container" id="progressBarContainer">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+          </div>
+          <div class="progress-bar-text">
+            <span id="progressPercent">0%</span>
+            <span id="progressStatus">准备上传...</span>
+          </div>
+        </div>
+        <div class="grid-2" id="analysisArea" style="display:none;margin-top:20px;">
+          <div class="card">
+            <div class="card-title"><i class="fas fa-robot" style="color:var(--accent-1);"></i> AI识别结果</div>
+            <div id="aiResult"><div class="loading-text">等待上传数据...</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="fas fa-code-branch" style="color:#f59e0b;"></i> 字段映射</div>
+            <div id="fieldMapping"><div class="loading-text">等待识别结果...</div></div>
+          </div>
+        </div>
+        <div style="margin-top:24px;">
+          <div class="section-title"><i class="fas fa-table" style="color:#818cf8;"></i> 已上传表格</div>
+          <div style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-sm" onclick="exportData('revenue')"><i class="fas fa-download"></i> 导出营收</button>
+            <button class="btn-sm" onclick="exportData('renewal')"><i class="fas fa-download"></i> 导出续费</button>
+            <button class="btn-sm" onclick="exportData('enrollment')"><i class="fas fa-download"></i> 导出招生</button>
+          </div>
+          <div id="tableListContainer"><div class="loading-spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Content Factory -->
+      <div class="page page-with-bg" id="page-content">
+        <div class="page-header"><h2><i class="fas fa-pen-fancy"></i> 内容工厂</h2></div>
+        <div class="filter-tabs" id="contentFilter">
+          <div class="filter-tab active" data-filter="all">全部</div>
+          <div class="filter-tab" data-filter="pyq">朋友圈话术</div>
+          <div class="filter-tab" data-filter="dm">私信话术</div>
+          <div class="filter-tab" data-filter="yy">邀约话术</div>
+          <div class="filter-tab" data-filter="xf">续费话术</div>
+          <div class="filter-tab" data-filter="general">通用</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+          <button id="batchGenBtn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;cursor:pointer;"><i class="fas fa-wand-magic-sparkles"></i> AI批量生成</button>
+          <span id="batchGenStatus" style="font-size:12px;color:#818cf8;display:none;"><i class="fas fa-spinner fa-spin"></i> 正在生成中...</span>
+        </div>
+        <div id="contentList" class="grid-3"><div class="loading-spinner"></div></div>
+        <button class="float-btn" id="newContentBtn" title="新建话术"><i class="fas fa-plus"></i></button>
+      </div>
+
+      <!-- AI Brain -->
+      <div class="page" id="page-brain">
+        <div class="page-header"><h2><i class="fas fa-robot"></i> AI 智囊</h2></div>
+        
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages"></div>
+          <div style="display:flex;align-items:center;gap:8px;padding:0 16px 8px 16px;border-bottom:1px solid #1f2937;">
+            <label style="font-size:12px;color:#9ca3af;cursor:pointer;display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="webSearchToggle" style="accent-color:var(--accent-1);"> 
+              联网搜索 <span style="color:#6b7280;font-size:11px;">（获取最新信息）</span>
+            </label>
+          </div><div class="chat-quick-qs" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;border-bottom:1px solid #1f2937;">
+            <span style="font-size:11px;color:#6b7280;margin-right:4px;align-self:center;">快速问：</span>
+            <button class="quick-q quick-q-btn" data-q="本月营收怎么样">本月营收怎么样</button>
+            <button class="quick-q quick-q-btn" data-q="哪个校区表现最差">哪个校区表现最差</button>
+            <button class="quick-q quick-q-btn" data-q="续费率怎么提升">续费率怎么提升</button>
+            <button class="quick-q quick-q-btn" data-q="本月经营建议">本月经营建议</button>
+          </div>
+          <div style="display:flex;gap:8px;padding:8px 16px 0;border-top:none;justify-content:flex-end;">
+            <button id="clearChatBtn" class="btn-ghost" style="font-size:12px;color:var(--text-muted);"><i class="fas fa-trash-alt"></i> 清空对话</button>
+          </div>
+          <div class="chat-input-area" style="border-top:none;">
+            <input type="text" id="chatInput" placeholder="输入经营问题..." style="border:1px solid transparent;">
+            <button class="btn-primary" id="chatSendBtn" style="padding:12px 24px;">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Base -->
+      <div class="page page-with-bg" id="page-knowledge">
+        <div class="page-header"><h2><i class="fas fa-book-open"></i> 知识库</h2></div>
+        <div style="display:flex;gap:12px;margin-bottom:20px;">
+          <input type="text" id="knowledgeSearch" placeholder="搜索知识库..." style="flex:1;padding:10px 16px;border-radius:10px;background:#1f2937;border:1px solid #374151;color:#e5e7eb;font-size:14px;">
+          <button class="btn-primary" id="knowledgeSearchBtn"><i class="fas fa-search"></i> 搜索</button>
+        </div>
+        <div style="display:flex;gap:20px;">
+          <div id="categorySidebar" style="width:220px;flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;color:#9ca3af;font-weight:600;">分类</span>
+              <button id="manageCatsBtn" style="background:none;border:none;color:#818cf8;font-size:12px;cursor:pointer;"><i class="fas fa-cog"></i></button>
+            </div>
+            <div id="categoryTree" style="display:flex;flex-direction:column;gap:4px;">
+              <div class="cat-tree-item active" data-cat="all" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#e5e7eb;background:rgba(129,140,248,0.15);"><i class="fas fa-folder-open" style="color:#818cf8;font-size:12px;width:16px;"></i> 全部 <span class="cat-count" style="margin-left:auto;font-size:11px;color:#6b7280;">0</span></div>
+            </div>
+            <div style="margin-top:16px;">
+              <div class="cat-tree-item" data-cat="websearch" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#e5e7eb;"><i class="fas fa-globe" style="color:#34d399;font-size:12px;width:16px;"></i> 联网搜索</div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div id="knowledgeList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;"></div>
+            <div id="webSearchPanel" style="display:none;" class="card" style="padding:20px;">
+              <div style="display:flex;gap:12px;margin-bottom:16px;">
+                <input type="text" id="webSearchInput" placeholder="输入搜索关键词，如：2026教培趋势" style="flex:1;padding:10px 16px;border-radius:10px;background:#1f2937;border:1px solid #374151;color:#e5e7eb;font-size:14px;">
+                <button class="btn-primary" id="webSearchBtn"><i class="fas fa-globe"></i> 搜索</button>
+              </div>
+              <div id="webSearchResults">
+                <div style="text-align:center;padding:40px 0;color:#6b7280;font-size:14px;">输入关键词开始联网搜索最新教培资讯</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="float-btn" id="newKnowledgeBtn" title="新建知识条目"><i class="fas fa-plus"></i></button>
+      </div>
+      
+      <!-- Category Manager Modal -->
+      <div class="modal" id="catModal">
+        <div class="modal-content" style="max-width:420px;">
+          <div class="modal-header">
+            <span id="catModalTitle">管理分类</span>
+            <i class="fas fa-times modal-close" onclick="$('catModal').classList.remove('open')"></i>
+          </div>
+          <div id="catList" style="margin-bottom:16px;display:flex;flex-direction:column;gap:6px;"></div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="newCatInput" placeholder="新分类名称" style="flex:1;padding:8px 12px;border-radius:8px;background:#1f2937;border:1px solid #374151;color:#e5e7eb;font-size:13px;">
+            <button id="addCatBtn" class="btn-primary" style="padding:8px 16px;font-size:13px;">添加</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 机构档案 -->
+      <div class="page" id="page-org-profile" style="display:none;">
+        <div class="page-header"><h2><i class="fas fa-building"></i> 机构档案</h2></div>
+        <div class="card" style="max-width:600px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="modal-field">
+              <label>机构名称</label>
+              <input type="text" id="orgName" value="">
+            </div>
+            <div class="modal-field">
+              <label>校区数</label>
+              <input type="number" id="orgCampuses" value="0">
+            </div>
+            <div class="modal-field">
+              <label>员工人数</label>
+              <input type="number" id="orgStaff" value="0">
+            </div>
+            <div class="modal-field">
+              <label>学员总数</label>
+              <input type="number" id="orgStudents" value="0">
+            </div>
+            <div class="modal-field" style="grid-column:1/-1;">
+              <label>课程品类</label>
+              <div class="tag-input-container" id="orgTagContainer">
+                <input type="text" id="orgTagInput" placeholder="输入品类，回车添加">
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="saveOrgBtn" style="margin-top:20px;"><i class="fas fa-check"></i> 保存档案</button>
+          <div id="orgSaveMsg" style="margin-top:12px;font-size:13px;color:#6b7280;display:none;"></div>
+        </div>
+        <div class="card" style="max-width:600px;margin-top:16px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;text-align:center;">
+            <div><div style="font-size:28px;font-weight:700;color:var(--accent-1);" id="orgStatCampuses">0</div><div style="font-size:12px;color:#6b7280;margin-top:4px;">校区</div></div>
+            <div><div style="font-size:28px;font-weight:700;color:#34d399;" id="orgStatStaff">0</div><div style="font-size:12px;color:#6b7280;margin-top:4px;">员工</div></div>
+            <div><div style="font-size:28px;font-weight:700;color:#f59e0b;" id="orgStatStudents">0</div><div style="font-size:12px;color:#6b7280;margin-top:4px;">学员</div></div>
+            <div><div style="font-size:28px;font-weight:700;color:#f472b6;" id="orgStatCourses">0</div><div style="font-size:12px;color:#6b7280;margin-top:4px;">课品类</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="page" id="page-settings">
+        <div class="page-header"><h2><i class="fas fa-cog"></i> 设置</h2></div>
+        <div class="card" style="max-width:600px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="modal-field">
+              <label>机构名称</label>
+              <input type="text" id="settingsName" value="方舟教育">
+            </div>
+            <div class="modal-field">
+              <label>校区数</label>
+              <input type="number" id="settingsCampuses" value="5">
+            </div>
+            <div class="modal-field">
+              <label>人员规模</label>
+              <input type="number" id="settingsStaff" value="48">
+            </div>
+            <div class="modal-field">
+              <label>学员总数（只读）</label>
+              <input type="text" id="settingsStudents" value="881" readonly style="opacity:0.6;">
+            </div>
+          </div>
+          <div class="modal-field" style="margin-top:4px;">
+            <label>课程品类</label>
+            <div class="tag-input-container" id="tagContainer">
+              <div class="tag" data-tag="小学辅导"><span>小学辅导</span><span class="tag-remove">&times;</span></div>
+              <div class="tag" data-tag="初中培优"><span>初中培优</span><span class="tag-remove">&times;</span></div>
+              <div class="tag" data-tag="高中课程"><span>高中课程</span><span class="tag-remove">&times;</span></div>
+              <div class="tag" data-tag="素质拓展"><span>素质拓展</span><span class="tag-remove">&times;</span></div>
+              <input type="text" id="tagInput" placeholder="输入新品类，回车添加">
+            </div>
+          </div>
+          <button class="btn-primary" id="saveSettingsBtn" style="margin-top:20px;"><i class="fas fa-check"></i> 保存设置</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="contentModal">
+  <div class="modal-content">
+    <h2 id="contentModalTitle">新建话术模板</h2>
+    <div class="modal-field">
+      <label>分类</label>
+      <select id="contentFormCategory">
+        <option value="pyq">朋友圈话术</option>
+        <option value="dm">私信话术</option>
+        <option value="yy">邀约话术</option>
+        <option value="xf">续费话术</option>
+        <option value="general">通用</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>标题</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="contentFormTitle" placeholder="话术标题" style="flex:1;">
+        <button id="aiGenerateBtn" style="background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;cursor:pointer;white-space:nowrap;"><i class="fas fa-magic"></i> AI生成</button>
+      </div>
+    </div>
+    <div class="modal-field" id="aiTopicField" style="display:none;">
+      <label>AI生成主题</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="aiTopicInput" placeholder="输入主题，如：暑假班续费提醒" style="flex:1;">
+        <button id="aiDoGenerateBtn" style="background:#818cf8;border:none;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;cursor:pointer;">生成</button>
+      </div>
+      <div id="aiGenLoading" style="margin-top:8px;font-size:12px;color:#818cf8;display:none;"><i class="fas fa-spinner fa-spin"></i> AI正在生成中...</div>
+    </div>
+    <div class="modal-field">
+      <label>内容</label>
+      <textarea id="contentFormContent" placeholder="话术内容..." style="min-height:150px;"></textarea>
+    </div>
+    <div class="modal-field">
+      <label>标签（逗号分隔）</label>
+      <input type="text" id="contentFormTags" placeholder="如：续费,家长沟通">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="contentFormCancel">取消</button>
+      <button class="btn-primary" id="contentFormSave"><i class="fas fa-save"></i> 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Knowledge Modal -->
+<div class="modal-overlay" id="knowledgeModal">
+  <div class="modal-content">
+    <h2 id="knowledgeFormTitle">新建知识条目</h2>
+    <div class="modal-field">
+      <label>标题</label>
+      <input type="text" id="knowledgeFormTitleInput" placeholder="知识标题">
+    </div>
+    <div class="modal-field">
+      <label>分类</label>
+      <select id="knowledgeFormCategory">
+        <option value="运营">运营</option>
+        <option value="招生">招生</option>
+        <option value="续费">续费</option>
+        <option value="管理">管理</option>
+        <option value="增长">增长</option>
+        <option value="通用">通用</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>内容</label>
+      <textarea id="knowledgeFormContent" placeholder="知识内容..." style="min-height:150px;"></textarea>
+    </div>
+    <div class="modal-field">
+      <label>标签（逗号分隔）</label>
+      <input type="text" id="knowledgeFormTags" placeholder="如：运营,续费">
+    </div>
+    <div class="modal-field">
+      <label>来源</label>
+      <input type="text" id="knowledgeFormSource" placeholder="如：Sam笔记">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+      <button class="btn-secondary" id="knowledgeFormCancel">取消</button>
+      <button class="btn-primary" id="knowledgeFormSave"><i class="fas fa-save"></i> 保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 方舟智管 — 主应用 =====
+(function() {
+'use strict';
+
+const API_BASE = '/api';
+let chartInstance = null;
+let uploadFileData = null;
+const contentStore = [];
+const knowledgeStore = [];
+const resolvedAlerts = new Set();
+let _allAlertData = [];
+
+// ---------- Helpers ----------
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toastr ' + type;
+  el.innerHTML = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+const $ = id => document.getElementById(id);
+
+function fmtCurrency(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return '¥0';
+  return '¥' + v.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return '—';
+  return dt.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function token() { return localStorage.getItem('fangzhou_token'); }
+
+async function api(method, path, body) {
+  const opts = { method, headers: {} };
+  const t = token();
+  if (t) opts.headers['Authorization'] = 'Bearer ' + t;
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json();
+  if (!data.ok && data.error) throw new Error(data.error);
+  return data;
+}
+
+// Upload file with FormData (different from json api)
+async function apiUpload(path, formData) {
+  const opts = { method: 'POST', body: formData };
+  const t = token();
+  if (t) opts.headers = { 'Authorization': 'Bearer ' + t };
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json();
+  if (!data.ok && data.error) throw new Error(data.error);
+  return data;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+// ---------- Auth ----------
+function checkAuth() {
+  const t = token();
+  if (t) {
+    $('loginPage').style.display = 'none';
+    $('app').style.display = 'flex';
+    return true;
+  }
+  return false;
+}
+
+async function doLogin() {
+  const user = $('loginUser').value.trim();
+  const pass = $('loginPass').value.trim();
+  if (!user || !pass) { $('loginError').style.display = 'block'; return; }
+  try {
+    // Try real login first
+    const data = await api('POST', '/auth/login', { username: user, password: pass });
+    localStorage.setItem('fangzhou_token', data.token);
+    $('loginError').style.display = 'none';
+    $('loginPage').style.display = 'none';
+    $('app').style.display = 'flex';
+    init();
+  } catch(e) {
+    // Fallback: demo mode
+    localStorage.setItem('fangzhou_token', 'demo_token_' + Date.now());
+    $('loginError').style.display = 'none';
+    $('loginPage').style.display = 'none';
+    $('app').style.display = 'flex';
+    // Init demo data
+    try { await api('POST', '/api/demo/init'); } catch(_) {}
+    init();
+  }
+}
+
+// ---------- Router ----------
+let currentPage = 'dashboard';
+const pageEls = {};
+
+function navigate(page) {
+  if (page === currentPage) return;
+  currentPage = page;
+  
+  // Update sidebar
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  document.querySelectorAll('.mnav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  
+  // Show page
+  Object.keys(pageEls).forEach(k => {
+    pageEls[k].classList.toggle('active', k === page);
+  });
+  
+  // Load page content
+  switch(page) {
+    case 'dashboard': loadDashboard(); break;
+    case 'data': loadDataPage(); break;
+    case 'content': loadContentPage(); break;
+    case 'brain': loadBrainPage(); break;
+    case 'knowledge': loadKnowledgePage(); break;
+    case 'org-profile': loadOrgProfilePage(); break;
+    case 'settings': loadSettingsPage(); break;
+  }
+}
+
+// ---------- 机构档案 ----------
+let orgProfileTags = [];
+
+async function loadOrgProfilePage() {
+  try {
+    const data = await api('GET', '/org/profile');
+    const d = data && data.data ? data.data : (data || {});
+    if (d.name) {
+      $('orgName').value = d.name || '';
+      $('orgCampuses').value = d.campuses || 0;
+      $('orgStaff').value = d.staffCount || 0;
+      $('orgStudents').value = d.totalStudents || 0;
+      orgProfileTags = d.courseCategories || [];
+    }
+    // Stats
+    $('orgStatCampuses').textContent = d.campuses || 0;
+    $('orgStatStaff').textContent = d.staffCount || 0;
+    $('orgStatStudents').textContent = d.totalStudents || 0;
+    $('orgStatCourses').textContent = (d.courseCategories || []).length;
+    renderOrgTags();
+  } catch(e) {
+    console.log('Org profile load fallback');
+    $('orgStatCampuses').textContent = '0';
+    $('orgStatStaff').textContent = '0';
+    $('orgStatStudents').textContent = '0';
+    $('orgStatCourses').textContent = '0';
+  }
+}
+
+function renderOrgTags() {
+  const container = $('orgTagContainer');
+  // Remove existing tags (keep input)
+  const tags = container.querySelectorAll('.tag');
+  tags.forEach(t => t.remove());
+  orgProfileTags.forEach(tag => {
+    const el = document.createElement('div');
+    el.className = 'tag';
+    el.innerHTML = '<span>' + escapeHtml(tag) + '</span><span class="tag-remove" data-tag="' + escapeHtml(tag) + '">&times;</span>';
+    container.insertBefore(el, $('orgTagInput'));
+  });
+  // Re-bind remove events
+  container.querySelectorAll('.tag-remove').forEach(el => {
+    el.addEventListener('click', function() {
+      const tag = this.dataset.tag;
+      orgProfileTags = orgProfileTags.filter(t => t !== tag);
+      renderOrgTags();
+    });
+  });
+}
+
+// Save org profile
+document.addEventListener('DOMContentLoaded', function() {
+  // Tag input
+  $('orgTagInput')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = this.value.trim();
+      if (val && !orgProfileTags.includes(val)) {
+        orgProfileTags.push(val);
+        renderOrgTags();
+      }
+      this.value = '';
+    }
+  });
+  
+  $('saveOrgBtn')?.addEventListener('click', async function() {
+    const payload = {
+      name: $('orgName').value.trim(),
+      campuses: parseInt($('orgCampuses').value) || 0,
+      staffCount: parseInt($('orgStaff').value) || 0,
+      totalStudents: parseInt($('orgStudents').value) || 0,
+      courseCategories: orgProfileTags
+    };
+    try {
+      await api('PUT', '/org/profile', payload);
+      $('orgSaveMsg').style.display = 'block';
+      $('orgSaveMsg').style.color = '#34d399';
+      $('orgSaveMsg').textContent = '✅ 档案已保存';
+      // Update stats
+      $('orgStatCampuses').textContent = payload.campuses;
+      $('orgStatStaff').textContent = payload.staffCount;
+      $('orgStatStudents').textContent = payload.totalStudents;
+      $('orgStatCourses').textContent = orgProfileTags.length;
+      setTimeout(() => { $('orgSaveMsg').style.display = 'none'; }, 3000);
+    } catch(e) {
+      $('orgSaveMsg').style.display = 'block';
+      $('orgSaveMsg').style.color = '#ef4444';
+      $('orgSaveMsg').textContent = '❌ 保存失败: ' + e.message;
+    }
+  });
+});
+
+// ---------- Dashboard ----------
+async function loadDashboard() {
+  try {
+    let data;
+    try {
+      const period = ($('periodSelect')?.value || 'month');
+      data = await api('GET', '/dashboard/summary?period=' + period);
+    } catch(e) {
+      data = getMockDashboard();
+    }
+    // Defensive: unwrap {ok,data} envelope; if data is null/undefined use mock
+    let d = (data && data.data) ? data.data : (data || getMockDashboard());
+    
+    // Show period label
+    const period = ($('periodSelect')?.value || 'month');
+    $('periodLabel').textContent = period === 'month' ? '2026年3月' : (period === 'quarter' ? '2026年Q1' : '2026年');
+    
+    // Safe number helper - guarantees a non-NaN number
+    function safeNum(v, def) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : (def || 0);
+    }
+    
+    // Revenue card
+    const rev = d.revenue || {};
+    const revCurr = safeNum(rev.current, 0);
+    const revTarget = safeNum(rev.target, 1);
+    const revComp = safeNum(rev.completion, Math.round((revCurr / revTarget) * 100));
+    $('revenueValue').textContent = revCurr >= 10000 ? fmtCurrency(revCurr) : revCurr.toLocaleString();
+    $('revenueSub').textContent = '目标完成率 ' + revComp + '%';
+    $('revenueBarFill').style.width = Math.min(revComp, 100) + '%';
+    $('revenueTrend').innerHTML = trendArrow(rev.trend || 'flat');
+    
+    // Renewal card
+    const ren = d.renewal || {};
+    const renRate = safeNum(ren.rate, 0);
+    const renChg = safeNum(ren.change, 0);
+    $('renewalValue').textContent = renRate + '%';
+    $('renewalSub').textContent = '环比变化 ' + (renChg >= 0 ? '+' : '') + renChg + '%';
+    $('renewalBarFill').style.width = Math.min(renRate, 100) + '%';
+    $('renewalTrend').innerHTML = trendArrow(renChg || 'flat');
+    
+    // Enrollment card
+    const enr = d.enrollment || {};
+    const enrNew = safeNum(enr.newStudents, 0);
+    const enrTarget = safeNum(enr.target, 1);
+    const enrComp = safeNum(enr.completion, Math.round((enrNew / enrTarget) * 100));
+    $('enrollmentValue').textContent = enrNew.toString();
+    $('enrollmentSub').textContent = '完成率 ' + enrComp + '%';
+    $('enrollmentBarFill').style.width = Math.min(enrComp, 100) + '%';
+    $('enrollmentTrend').innerHTML = trendArrow(enr.trend || 'flat');
+    
+    // Save for chart type toggle
+    window._lastTrendData = d.monthlyTrend || d.revenueTrend || d.trend;
+    // Revenue chart
+    renderChart(window._lastTrendData);
+    
+    // Campus ranking
+    renderCampusRanking(d.campuses || d.campusRanking);
+    
+    // Alerts
+    renderAlerts(d.alerts);
+    
+    // AI Insight - 基于实时数据
+    (async function() {
+      try {
+        const revStr = '营收' + (revCurr || 0).toLocaleString() + '元，完成率' + revComp + '%';
+        const renStr = '续费率' + renRate + '%';
+        const enrStr = '招生' + enrNew + '人，完成率' + enrComp + '%';
+        const insightRes = await fetch('/api/brain/chat', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({message:'请用2-3句话总结以下教培机构经营状况，指出最重要的一个问题和建议（回复不超过150字）：' + revStr + '，' + renStr + '，' + enrStr})
+        });
+        const insightData = await insightRes.json();
+        if (insightData.reply) {
+          $('aiInsight').innerHTML = '<div style="font-size:14px;line-height:1.7;color:#d1d5db;">' + insightData.reply.replace(/\n/g,'<br>') + '</div>';
+        } else {
+          $('aiInsight').innerHTML = '<div class="ai-insight-loading"><span style="color:#9ca3af;font-size:13px;">AI分析暂不可用</span></div>';
+        }
+      } catch(e) {
+        $('aiInsight').innerHTML = '<div class="ai-insight-loading"><span style="color:#9ca3af;font-size:13px;">AI分析暂不可用</span></div>';
+      }
+    })();
+    
+  } catch(e) {
+    console.error('Dashboard load error:', e);
+    // Last-resort: render from mock
+    const m = getMockDashboard();
+    window._lastTrendData = m.monthlyTrend;
+    renderChart(window._lastTrendData);
+    renderCampusRanking(m.campusRanking);
+    renderAlerts(m.alerts);
+    $('aiInsight').innerHTML = '<div class="loading-text">AI分析暂时不可用</div>';
+  }
+}
+
+function trendArrow(val) {
+  if (val === undefined || val === null || val === 'flat') return '<span style="color:#9ca3af;"><i class="fas fa-minus"></i> 持平</span>';
+  if (val === 'up') return '<span style="color:#22c55e;"><i class="fas fa-arrow-up"></i> 上升</span>';
+  if (val === 'down') return '<span style="color:#ef4444;"><i class="fas fa-arrow-down"></i> 下降</span>';
+  const v = Number(val);
+  if (!Number.isFinite(v)) return '<span style="color:#9ca3af;"><i class="fas fa-minus"></i> 持平</span>';
+  if (v > 0) return '<span style="color:#22c55e;"><i class="fas fa-arrow-up"></i> +' + v + '</span>';
+  if (v < 0) return '<span style="color:#ef4444;"><i class="fas fa-arrow-down"></i> ' + v + '</span>';
+  return '<span style="color:#9ca3af;"><i class="fas fa-minus"></i> 持平</span>';
+}
+
+let currentChartType = 'line';
+
+function renderChart(trendData, chartType) {
+  if (!chartType) {
+    chartType = currentChartType;
+    // Update toggle button active states
+    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.chart === chartType);
+      btn.style.background = btn.dataset.chart === chartType ? 'rgba(129,140,248,0.15)' : 'transparent';
+      btn.style.color = btn.dataset.chart === chartType ? '#818cf8' : '#6b7280';
+    });
+  }
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  if (chartInstance) { chartInstance.destroy(); }
+  
+  // Force canvas parent to 260px max, prevent Chart.js from expanding it
+  const chartWrapper = document.querySelector('.chart-wrapper');
+  if (chartWrapper) {
+    chartWrapper.style.setProperty('height', '260px', 'important');
+    chartWrapper.style.setProperty('max-height', '260px', 'important');
+  }
+  
+  const labels = trendData ? trendData.map(d => d.month || d.label || '') : ['1月','2月','3月','4月','5月','6月'];
+  const revData = trendData ? trendData.map(d => d.revenue || d.amount || d.value || 0) : [120,190,230,260,210,280];
+  const renData = trendData ? trendData.map(d => d.renewal || d.renewalRate || d.rate || 0) : [68,72,75,71,78,76];
+  
+  // Detect anomalies: points where growth drops significantly
+  const anomalies = [];
+  for (let i = 1; i < revData.length; i++) {
+    if (revData[i-1] > 0 && (revData[i] - revData[i-1]) / revData[i-1] < -0.05) {
+      anomalies.push({ index: i, reason: '营收下降' });
+    }
+  }
+  
+  chartInstance = new Chart(ctx, {
+    type: chartType || 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '营收',
+        data: revData,
+        borderColor: '#818cf8',
+        backgroundColor: 'rgba(129,140,248,0.1)',
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y',
+        pointRadius: revData.map((v, i) => anomalies.find(a => a.index === i) ? 8 : 4),
+        pointBackgroundColor: revData.map((v, i) => anomalies.find(a => a.index === i) ? '#ef4444' : '#818cf8'),
+        pointBorderColor: revData.map((v, i) => anomalies.find(a => a.index === i) ? '#fca5a5' : '#a5b4fc'),
+        pointBorderWidth: revData.map((v, i) => anomalies.find(a => a.index === i) ? 3 : 1)
+      }, {
+        label: '续费率',
+        data: renData,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.1)',
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y1'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 0,
+      onResize: function(chart, size) {
+        if (size.height > 260) {
+          chart.canvas.style.height = '260px';
+        }
+      },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { color: '#9ca3af', font: { size: 12 } }
+        },
+        tooltip: {
+          backgroundColor: '#1f2937',
+          titleColor: '#e5e7eb',
+          bodyColor: '#9ca3af',
+          borderColor: '#374151',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 8,
+          callbacks: {
+            afterBody: function(items) {
+              const idx = items[0].dataIndex;
+              const anom = anomalies.find(a => a.index === idx);
+              return anom ? '\u26a0\ufe0f ' + anom.reason : '';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#6b7280' },
+          grid: { color: 'rgba(255,255,255,0.03)' }
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          ticks: { color: '#6b7280', callback: v => '¥' + v },
+          grid: { color: 'rgba(255,255,255,0.03)' }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          ticks: { color: '#6b7280', callback: v => v + '%' },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+}
+
+function renderCampusRanking(campuses) {
+  const el = document.getElementById('campusRanking');
+  const data = campuses || [
+    { name: '浦东校区', revenue: 582000 }, { name: '徐汇校区', revenue: 523000 },
+    { name: '静安校区', revenue: 491000 }, { name: '闵行校区', revenue: 412000 },
+    { name: '虹口校区', revenue: 387000 }
+  ];
+  const sorted = [...data].sort((a, b) => (b.revenue || b.value || 0) - (a.revenue || a.value || 0));
+  const maxVal = Math.max(...sorted.map(d => d.revenue || d.value || 0));
+  const colors = ['#818cf8','#667eea','#764ba2','#6366f1','#4f46e5'];
+  
+  let html = '';
+  sorted.forEach((d, i) => {
+    const val = d.revenue || d.value || 0;
+    const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
+    html += '<div style="margin-bottom:12px;">';
+    html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">';
+    html += '<span style="font-size:13px;color:#e5e7eb;">' + d.name + '</span>';
+    html += '<span style="font-size:13px;font-weight:600;color:' + (colors[i] || '#818cf8') + ';">' + fmtCurrency(val) + '</span>';
+    html += '</div>';
+    html += '<div style="height:8px;background:#1f2937;border-radius:4px;overflow:hidden;">';
+    html += '<div style="height:100%;width:' + pct + '%;border-radius:4px;background:' + (colors[i] || '#818cf8') + ';transition:width 1s ease;"></div>';
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+// Update alert dashboard gauge circles and donut chart
+function updateAlertDashboard(data) {
+  if (!data || !data.length) return;
+  const red = data.filter(a => a.level === 'red').length;
+  const orange = data.filter(a => a.level === 'orange').length;
+  const yellow = data.filter(a => a.level === 'yellow').length;
+  const total = red + orange + yellow;
+  
+  // Update gauge circles
+  $('gaugeRedCount').textContent = red;
+  $('gaugeOrangeCount').textContent = orange;
+  $('gaugeYellowCount').textContent = yellow;
+  $('gaugeRedLabel').textContent = red + '条';
+  $('gaugeOrangeLabel').textContent = orange + '条';
+  $('gaugeYellowLabel').textContent = yellow + '条';
+  
+  // Update gauge circle conic gradients
+  if (total > 0) {
+    const redPct = (red / total) * 100;
+    const orangePct = (orange / total) * 100;
+    const yellowPct = (yellow / total) * 100;
+    
+    // Red gauge: fill based on red/total proportion
+    const redDeg = (redPct / 100) * 360;
+    $('gaugeRed').style.background = 'conic-gradient(#ef4444 0deg, #ef4444 ' + redDeg + 'deg, rgba(239,68,68,0.2) ' + redDeg + 'deg, rgba(239,68,68,0.2) 360deg)';
+    
+    const orangeDeg = (orangePct / 100) * 360;
+    $('gaugeOrange').style.background = 'conic-gradient(#f97316 0deg, #f97316 ' + orangeDeg + 'deg, rgba(249,115,22,0.2) ' + orangeDeg + 'deg, rgba(249,115,22,0.2) 360deg)';
+    
+    const yellowDeg = (yellowPct / 100) * 360;
+    $('gaugeYellow').style.background = 'conic-gradient(#eab308 0deg, #eab308 ' + yellowDeg + 'deg, rgba(234,179,8,0.2) ' + yellowDeg + 'deg, rgba(234,179,8,0.2) 360deg)';
+  }
+  
+  // Update donut chart (SVG circles)
+  $('donutTotal').textContent = total;
+  
+  if (total > 0) {
+    const circumference = 2 * Math.PI * 35; // r=35
+    const redLen = (red / total) * circumference;
+    const orangeLen = (orange / total) * circumference;
+    const yellowLen = (yellow / total) * circumference;
+    
+    // Red starts at 0
+    $('donutRed').setAttribute('stroke-dasharray', redLen + ' ' + (circumference - redLen));
+    // Orange starts at red's end
+    const orangeOffset = redLen / circumference * 360;
+    $('donutOrange').setAttribute('stroke-dasharray', orangeLen + ' ' + (circumference - orangeLen));
+    $('donutOrange').style.transform = 'rotate(' + (red / total * 360) + 'deg)';
+    // Yellow starts at red+orange end
+    $('donutYellow').setAttribute('stroke-dasharray', yellowLen + ' ' + (circumference - yellowLen));
+    $('donutYellow').style.transform = 'rotate(' + ((red + orange) / total * 360) + 'deg)';
+  } else {
+    $('donutRed').setAttribute('stroke-dasharray', '0 220');
+    $('donutOrange').setAttribute('stroke-dasharray', '0 220');
+    $('donutYellow').setAttribute('stroke-dasharray', '0 220');
+  }
+}
+
+// Filter alerts by gauge level (click on gauge or legend)
+function filterAlertsByGauge(level) {
+  const gaugeEls = document.querySelectorAll('.alert-gauge');
+  gaugeEls.forEach(g => g.classList.remove('active-gauge'));
+  
+  const legendItems = document.querySelectorAll('.alert-donut-legend .legend-item');
+  legendItems.forEach(l => l.classList.remove('active-legend'));
+  
+  if (level === 'red') {
+    document.querySelector('.alert-gauge[data-gauge-level="red"]')?.classList.add('active-gauge');
+    document.querySelector('.alert-donut-legend .legend-item:first-child')?.classList.add('active-legend');
+  } else if (level === 'orange') {
+    document.querySelector('.alert-gauge[data-gauge-level="orange"]')?.classList.add('active-gauge');
+    document.querySelector('.alert-donut-legend .legend-item:nth-child(2)')?.classList.add('active-legend');
+  } else if (level === 'yellow') {
+    document.querySelector('.alert-gauge[data-gauge-level="yellow"]')?.classList.add('active-gauge');
+    document.querySelector('.alert-donut-legend .legend-item:nth-child(3)')?.classList.add('active-legend');
+  }
+  
+  // Update filter tabs
+  document.querySelectorAll('#alertFilter .filter-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.querySelector('#alertFilter .filter-tab[data-level="' + level + '"]');
+  if (tab) tab.classList.add('active');
+  
+  _currentAlertFilter = level;
+  renderFilteredAlertsForCurrentFilter();
+}
+
+// Global current filter state
+let _currentAlertFilter = 'all';
+
+function renderFilteredAlertsForCurrentFilter() {
+  const level = _currentAlertFilter || 'all';
+  const filtered = level === 'all' ? _allAlertData : _allAlertData.filter(a => a.level === level);
+  renderFilteredAlerts(filtered);
+}
+
+function renderAlerts(alerts) {
+  const el = document.getElementById('alertList');
+  const data = (alerts && alerts.length) ? alerts : getMockDashboard().alerts;
+  const levelClass = { 'red':'alert-red','orange':'alert-orange','yellow':'alert-yellow','blue':'alert-blue' };
+  const icons = { 'red':'fa-exclamation-circle','orange':'fa-exclamation-triangle','yellow':'fa-clock','blue':'fa-info-circle' };
+  
+  // Store all alerts for filtering
+  _allAlertData = data;
+  
+  // Update alert dashboard gauges and donut chart
+  updateAlertDashboard(data);
+  
+  function renderFiltered(levelFilter) {
+    const filtered = levelFilter === 'all' ? data : data.filter(a => a.level === levelFilter);
+    let html = '';
+    filtered.forEach((a, i) => {
+      const id = a.id || 'alert-' + i;
+      const cls = levelClass[a.level] || 'alert-blue';
+      const icon = icons[a.level] || 'fa-info-circle';
+      const resolved = resolvedAlerts.has(id) ? ' resolved' : '';
+      const title = a.title || a.message || a.campus + '预警' || '提示';
+      const desc = a.desc || a.message || '';
+      const time = a.time || a.createdAt || new Date().toISOString();
+      html += '<div class="alert-item ' + cls + resolved + '" data-alert-id="' + id + '">';
+      html += '<i class="fas ' + icon + '" style="font-size:14px;margin-top:2px;"></i>';
+      html += '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + title + '</div>';
+      html += '<div style="font-size:12px;color:#9ca3af;margin-top:2px;">' + desc + '</div>';
+      html += '<div style="font-size:11px;color:#6b7280;margin-top:4px;">' + fmtDate(time) + '</div></div></div>';
+    });
+    if (!filtered.length) {
+      html = '<div style="text-align:center;padding:20px;color:#6b7280;font-size:13px;">暂无此级别的预警</div>';
+    }
+    el.innerHTML = html;
+    
+    // Click to resolve
+    el.querySelectorAll('.alert-item').forEach(item => {
+      item.addEventListener('click', async function() {
+        const id = this.dataset.alertId;
+        if (resolvedAlerts.has(id)) return;
+        try {
+          await api('PATCH', '/alerts/' + id, { resolved: true });
+          resolvedAlerts.add(id);
+          this.classList.add('resolved');
+          toast('预警已标记处理', 'success');
+        } catch(e) {
+          resolvedAlerts.add(id);
+          this.classList.add('resolved');
+        }
+      });
+    });
+  }
+  
+  // Bind filter buttons
+  const currentFilter = document.querySelector('#alertFilter .filter-tab.active')?.dataset?.level || 'all';
+  renderFiltered(currentFilter);
+}
+
+function renderFilteredAlerts(data) {
+  const el = document.getElementById('alertList');
+  const levelClass = { 'red':'alert-red','orange':'alert-orange','yellow':'alert-yellow','blue':'alert-blue' };
+  const icons = { 'red':'fa-exclamation-circle','orange':'fa-exclamation-triangle','yellow':'fa-clock','blue':'fa-info-circle' };
+  let html = '';
+  data.forEach((a, i) => {
+    const id = a.id || 'alert-' + i;
+    const cls = levelClass[a.level] || 'alert-blue';
+    const icon = icons[a.level] || 'fa-info-circle';
+    const resolved = resolvedAlerts.has(id) ? ' resolved' : '';
+    const title = a.title || a.message || a.campus + '预警' || '提示';
+    const desc = a.desc || a.message || '';
+    const time = a.time || a.createdAt || new Date().toISOString();
+    html += '<div class="alert-item ' + cls + resolved + '" data-alert-id="' + id + '">';
+    html += '<i class="fas ' + icon + '" style="font-size:14px;margin-top:2px;"></i>';
+    html += '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + title + '</div>';
+    html += '<div style="font-size:12px;color:#9ca3af;margin-top:2px;">' + desc + '</div>';
+    html += '<div style="font-size:11px;color:#6b7280;margin-top:4px;">' + fmtDate(time) + '</div></div></div>';
+  });
+  if (!data.length) {
+    html = '<div style="text-align:center;padding:20px;color:#6b7280;font-size:13px;">暂无此级别的预警</div>';
+  }
+  el.innerHTML = html;
+  el.querySelectorAll('.alert-item').forEach(item => {
+    item.addEventListener('click', async function() {
+      const id = this.dataset.alertId;
+      if (resolvedAlerts.has(id)) return;
+      try {
+        await api('PATCH', '/alerts/' + id, { resolved: true });
+        resolvedAlerts.add(id);
+        this.classList.add('resolved');
+        toast('预警已标记处理', 'success');
+      } catch(e) {
+        resolvedAlerts.add(id);
+        this.classList.add('resolved');
+      }
+    });
+  });
+}
+
+// ---------- Data Import ----------
+let currentUploadFile = null;
+// AI Brain - message history (context memory, keep last 10)
+let messageHistory = [];
+
+function loadDataPage() {
+  loadTableList();
+}
+
+function initUploadZone() {
+  const zone = $('uploadZone');
+  const input = $('fileInput');
+  
+  zone.addEventListener('click', () => input.click());
+  input.addEventListener('change', handleFileSelect);
+  
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+}
+
+function handleFileSelect(e) {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+}
+
+function handleFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx','xls','csv'].includes(ext)) { toast('不支持的文件格式', 'error'); return; }
+  
+  currentUploadFile = file;
+  const zone = $('uploadZone');
+  zone.innerHTML = '<div class="upload-icon"><i class="fas fa-file-excel" style="color:#22c55e;"></i></div>';
+  zone.innerHTML += '<p style="font-size:16px;font-weight:500;color:#e5e7eb;margin-bottom:4px;">' + file.name + '</p>';
+  zone.innerHTML += '<p style="font-size:13px;color:#6b7280;">' + (file.size / 1024).toFixed(1) + ' KB — 正在分析...</p>';
+  
+  // Parse file with XLSX
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let rows, columns;
+      if (ext === 'csv') {
+        const text = e.target.result;
+        const lines = text.split('\n').filter(l => l.trim());
+        columns = lines[0].split(',').map(c => c.trim().replace(/^"/,'').replace(/"$/,''));
+        rows = lines.slice(1).map(l => l.split(',').map(c => c.trim().replace(/^"/,'').replace(/"$/, '')));
+      } else {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        columns = json[0] || [];
+        rows = json.slice(1).filter(r => r.some(c => c !== ''));
+      }
+      
+      // Show AI analysis
+      showAnalysis(file.name, columns, rows);
+    } catch(err) {
+      toast('文件解析失败: ' + err.message, 'error');
+    }
+  };
+  
+  if (ext === 'csv') reader.readAsText(file);
+  else reader.readAsArrayBuffer(file);
+}
+
+function showAnalysis(fileName, columns, rows) {
+  $('analysisArea').hidden = false;
+  
+  // AI Recognition results
+  const tableTypes = ['营收','续费','招生'];
+  const typeKeywords = {
+    '营收': ['营收','收入','金额','业绩','营业额','销售额','流水'],
+    '续费': ['续费','续报','续课','留存','复购'],
+    '招生': ['招生','新增','报名','新签','学员','学生']
+  };
+  
+  // Detect type based on column names
+  let scores = { '营收': 0, '续费': 0, '招生': 0 };
+  const colText = columns.join(' ').toLowerCase();
+  Object.keys(typeKeywords).forEach(type => {
+    typeKeywords[type].forEach(kw => {
+      if (colText.includes(kw)) scores[type] += 20;
+    });
+  });
+  
+  // Default if nothing matched
+  if (Object.values(scores).every(s => s === 0)) scores['营收'] = 60;
+  
+  const bestType = Object.keys(scores).reduce((a,b) => scores[a] > scores[b] ? a : b);
+  const confidence = scores[bestType];
+  
+  let aiHtml = '<div style="margin-bottom:12px;">';
+  aiHtml += '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">检测到表格类型：<span class="gradient-text">' + bestType + '</span></div>';
+  aiHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+  aiHtml += '<span style="font-size:13px;color:#9ca3af;">置信度</span>';
+  aiHtml += '<div style="flex:1;height:6px;background:#1f2937;border-radius:3px;overflow:hidden;">';
+  const confColor = confidence >= 80 ? '#22c55e' : confidence >= 50 ? '#f59e0b' : '#ef4444';
+  aiHtml += '<div style="height:100%;width:' + confidence + '%;background:' + confColor + ';border-radius:3px;"></div></div>';
+  aiHtml += '<span style="font-size:13px;font-weight:600;color:' + confColor + ';">' + confidence + '%</span></div>';
+  
+  if (confidence < 80) {
+    aiHtml += '<div style="margin-bottom:8px;"><label style="font-size:12px;color:#9ca3af;display:block;margin-bottom:4px;">请确认表格类型</label>';
+    aiHtml += '<select id="tableTypeSelect" style="width:100%;padding:8px 12px;border-radius:8px;background:#1f2937;border:1px solid #374151;color:#e5e7eb;font-size:13px;">';
+    tableTypes.forEach(t => {
+      aiHtml += '<option value="' + t + '" ' + (t === bestType ? 'selected' : '') + '>' + t + '</option>';
+    });
+    aiHtml += '</select></div>';
+  }
+  
+  aiHtml += '<div style="font-size:12px;color:#6b7280;margin-bottom:4px;">识别的列名：</div>';
+  aiHtml += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
+  columns.forEach(c => { aiHtml += '<span style="padding:2px 8px;border-radius:4px;background:#1f2937;color:#9ca3af;font-size:12px;">' + c + '</span>'; });
+  aiHtml += '</div>';
+  
+  // Data preview table
+  aiHtml += '<div style="font-size:12px;color:#6b7280;margin-bottom:8px;">数据预览（前5行）：</div>';
+  aiHtml += '<div style="overflow-x:auto;margin-bottom:8px;"><table class="mapping-table" style="font-size:12px;"><thead><tr>';
+  columns.forEach(c => { aiHtml += '<th>' + c + '</th>'; });
+  aiHtml += '</tr></thead><tbody>';
+  for (let i = 0; i < Math.min(5, rows.length); i++) {
+    aiHtml += '<tr>';
+    (rows[i] || []).forEach(v => { aiHtml += '<td style="white-space:nowrap;">' + v + '</td>'; });
+    aiHtml += '</tr>';
+  }
+  aiHtml += '</tbody></table></div>';
+  aiHtml += '<div style="font-size:11px;color:#6b7280;">共 ' + rows.length + ' 行 × ' + columns.length + ' 列</div>';
+  aiHtml += '</div>';
+  $('aiResult').innerHTML = aiHtml;
+  
+  // Field mapping with auto-match indicator
+  let mapHtml = '<div style="margin-bottom:12px;font-size:12px;color:var(--text-muted);"><i class="fas fa-magic" style="color:var(--accent-1);"></i> 已自动推荐匹配，绿色=高置信度，黄色=低置信度，灰色=未匹配</div>';
+  mapHtml += '<table class="mapping-table"><thead><tr><th>原始字段</th><th style="width:60px;">匹配度</th><th>映射到</th></tr></thead><tbody>';
+  const targetFields = {
+    '营收': ['校区','营收金额','目标值','月份'],
+    '续费': ['校区','在读人数','续费人数','续费率'],
+    '招生': ['校区','新增学员数','目标值','完成率']
+  };
+  const targets = targetFields[bestType] || targetFields['营收'];
+  
+  columns.forEach(col => {
+    // Calculate match confidence for auto-recommendation
+    let bestMatch = '';
+    let bestScore = 0;
+    targets.forEach(t => {
+      let score = 0;
+      // Exact include
+      if (col === t) score = 100;
+      else if (col.includes(t) || t.includes(col)) score = 80;
+      else {
+        // Partial match: count overlapping characters
+        const colLower = col.toLowerCase();
+        const tLower = t.toLowerCase();
+        let overlap = 0;
+        for (let i = 0; i < tLower.length; i++) {
+          if (colLower.includes(tLower[i])) overlap++;
+        }
+        score = Math.round((overlap / tLower.length) * 60);
+      }
+      if (score > bestScore) { bestScore = score; bestMatch = t; }
+    });
+    
+    const matchColor = bestScore >= 80 ? '#22c55e' : (bestScore >= 40 ? '#eab308' : '#6b7280');
+    const matchBadge = bestScore >= 50 ? '<span style="display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:' + matchColor + '20;color:' + matchColor + ';">' + bestScore + '%</span>' : '<span style="color:#6b7280;font-size:10px;">—</span>';
+    
+    mapHtml += '<tr><td style="color:#e5e7eb;">' + col + '</td>';
+    mapHtml += '<td style="text-align:center;">' + matchBadge + '</td>';
+    mapHtml += '<td><select class="map-select" data-field="' + col + '" style="' + (bestScore >= 50 ? 'border-color:' + matchColor + '40;' : '') + '">';
+    mapHtml += '<option value="">— 不导入 —</option>';
+    targets.forEach(t => {
+      const matched = (t === bestMatch && bestScore >= 40) ? 'selected' : '';
+      mapHtml += '<option value="' + t + '" ' + matched + '>' + t + '</option>';
+    });
+    mapHtml += '</select></td></tr>';
+  });
+  mapHtml += '</tbody></table>';
+  mapHtml += '<button class="btn-primary" id="confirmMappingBtn" style="margin-top:12px;width:100%;justify-content:center;"><i class="fas fa-check"></i> 确认导入</button>';
+  $('fieldMapping').innerHTML = mapHtml;
+  
+  // Confirm mapping
+  document.getElementById('confirmMappingBtn')?.addEventListener('click', function() {
+    const selects = document.querySelectorAll('.map-select');
+    const mapping = {};
+    selects.forEach(s => {
+      if (s.value) mapping[s.dataset.field] = s.value;
+    });
+    const typeEl = document.getElementById('tableTypeSelect');
+    const tableType = typeEl ? typeEl.value : bestType;
+    
+    if (!currentUploadFile) { toast('请先选择文件', 'error'); return; }
+    
+    const self = this;
+    self.disabled = true;
+    self.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在上传...';
+    
+    // Show progress bar
+    const progContainer = $('progressBarContainer');
+    const progFill = $('progressBarFill');
+    const progPercent = $('progressPercent');
+    const progStatus = $('progressStatus');
+    progContainer.style.display = 'block';
+    progFill.style.width = '0%';
+    progPercent.textContent = '0%';
+    progStatus.textContent = '正在上传...';
+    
+    // Use XMLHttpRequest for upload progress tracking
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append('file', currentUploadFile);
+    
+    xhr.upload.addEventListener('progress', function(e) {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        progFill.style.width = pct + '%';
+        progPercent.textContent = pct + '%';
+        self.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上传中 ' + pct + '%';
+      }
+    });
+    
+    xhr.addEventListener('load', async function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        let uploadRes;
+        try { uploadRes = JSON.parse(xhr.responseText); } catch(e2) { uploadRes = {}; }
+        const uploadId = uploadRes.uploadId;
+        
+        if (!uploadId) {
+          progStatus.textContent = '上传失败：未获取到ID';
+          progFill.style.width = '0%';
+          toast('上传失败：未获取到上传ID', 'error');
+          self.disabled = false;
+          self.innerHTML = '<i class="fas fa-check"></i> 确认导入';
+          return;
+        }
+        
+        progStatus.textContent = '上传完成，正在导入数据...';
+        self.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在导入...';
+        
+        try {
+          const confirmRes = await api('POST', '/data/confirm', { uploadId, mapping, tableType });
+          progFill.style.width = '100%';
+          progPercent.textContent = '100%';
+          progStatus.textContent = '导入完成 ✓';
+          toast('成功导入数据！', 'success');
+          loadTableList();
+          // Reset upload zone
+          $('uploadZone').innerHTML = '<div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div><p style="font-size:16px;font-weight:500;color:#e5e7eb;margin-bottom:6px;">拖拽或点击上传 Excel/CSV</p><p style="font-size:13px;color:#6b7280;">支持 .xlsx, .xls, .csv 格式</p>';
+          $('analysisArea').hidden = true;
+          // Hide progress bar after 2s
+          setTimeout(function() {
+            progContainer.style.display = 'none';
+          }, 2000);
+        } catch(e) {
+          progStatus.textContent = '导入失败';
+          toast('导入失败: ' + (e.message||'未知错误'), 'error');
+        }
+      } else {
+        progStatus.textContent = '上传失败';
+        toast('上传文件失败', 'error');
+      }
+      self.disabled = false;
+      self.innerHTML = '<i class="fas fa-check"></i> 确认导入';
+    });
+    
+    xhr.addEventListener('error', function() {
+      progStatus.textContent = '上传出错';
+      toast('上传文件出错', 'error');
+      self.disabled = false;
+      self.innerHTML = '<i class="fas fa-check"></i> 确认导入';
+    });
+    
+    const t = token();
+    xhr.open('POST', API_BASE + '/data/upload');
+    if (t) xhr.setRequestHeader('Authorization', 'Bearer ' + t);
+    xhr.send(formData);
+  });
+}
+
+async function loadTableList() {
+  const el = $('tableListContainer');
+  try {
+    let tables;
+    try { tables = (await api('GET', '/data/list')).data || []; }
+    catch(e) { tables = getMockTables(); }
+    
+    if (!tables.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><p>暂无上传的表格</p></div>';
+      return;
+    }
+    
+    const statusMap = { 'imported':'已导入','analyzed':'已分析','pending':'待分析','error':'异常' };
+    const statusColor = { 'imported':'#22c55e','analyzed':'#22c55e','pending':'#f59e0b','error':'#ef4444' };
+    
+    let html = '<div style="overflow-x:auto;"><table class="mapping-table"><thead><tr><th>表格名</th><th>类型</th><th>状态</th><th>导入行数</th><th>导入时间</th><th>操作</th></tr></thead><tbody>';
+    tables.forEach(t => {
+      const rowCount = t.rowCount || t.rows || t.importedRows || (t.data && t.data.length) || '—';
+      html += '<tr><td style="color:#e5e7eb;">' + (t.fileName || t.name || t.id) + '</td>';
+      html += '<td>' + (t.type || (t.tableType || '—')) + '</td>';
+      html += '<td><span style="color:' + (statusColor[t.status] || '#9ca3af') + ';">' + (statusMap[t.status] || t.status) + '</span></td>';
+      html += '<td style="color:#22c55e;font-weight:600;font-size:13px;">' + rowCount + ' 行</td>';
+      html += '<td style="color:#9ca3af;font-size:12px;">' + fmtDate(t.uploadedAt || t.createdAt || t.importedAt) + '</td>';
+      html += '<td><button class="btn-ghost delete-table" data-id="' + (t.id || t._id) + '" style="color:#ef4444;"><i class="fas fa-trash"></i></button></td></tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+    
+    el.querySelectorAll('.delete-table').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const id = this.dataset.id;
+        try { await api('DELETE', '/data/' + id); toast('已删除', 'info'); loadTableList(); }
+        catch(e) { toast('删除失败', 'error'); }
+      });
+    });
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>加载失败</p></div>';
+  }
+}
+
+// ---------- Content Factory ----------
+function loadContent(filter = 'all') {
+  const el = $('contentList');
+  const cats = { 'pyj':'朋友圈话术', 'dm':'私信话术', 'yy':'邀约话术', 'xf':'续费话术', 'general':'通用' };
+  
+  if (!contentStore.length) {
+    // Seed with demo content
+    contentStore.push(
+      { id: 'c1', category: 'pyq', title: '家长见证型朋友圈', content: '【喜报】恭喜浦东校区张**同学数学满分！\n\n从期中考85分到期末100分，一个月的时间，孩子付出了努力，我们提供了方法。\n\n教育的意义，就是让每个孩子都找到适合自己的节奏。\n\n#方舟教育 #学霸养成记', tags: ['喜报','数学'] },
+      { id: 'c2', category: 'dm', title: '试听课邀约私信', content: '家长您好，我是方舟教育的课程顾问。\n\n看到孩子最近在数学方面有些吃力，我们本周末有一场免费试听课，专门针对四年级应用题薄弱环节，由10年教龄名师授课。\n\n名额有限，如果您方便的话，可以预约一下？', tags: ['邀约','试听'] },
+      { id: 'c3', category: 'xf', title: '老学员续费话术', content: '家长您好，看到孩子在我们这里学习进步很大，我们非常欣慰。\n\n下学期的课程安排已经出来了，老学员可以享受续费优惠：\n1. 提前续费享9折\n2. 赠送2节专题课程\n3. 老带新双方各减200元\n\n优惠截止到本月底，建议尽早锁定名额。', tags: ['续费','优惠'] },
+      { id: 'c4', category: 'yy', title: '电话邀约话术', content: '您好，请问是**的家长吗？我是方舟教育的老师。\n\n是这样的，我们近期针对初中生做了一次学情分析，发现很多孩子在英语阅读方面存在共性问题。\n\n本周六下午我们有一场专题公开课，专门讲解阅读理解技巧，完全免费，您方便带孩子来体验吗？', tags: ['邀约','电话'] },
+      { id: 'c5', category: 'general', title: '常见问题解答', content: 'Q: 你们的价格是多少？\nA: 我们根据不同课程和班型有不同定价，一对一价格在200-400元/小时，小班课在80-150元/小时。\n\nQ: 有试听课吗？\nA: 有的，所有课程都提供一节免费试听课。\n\nQ: 可以退费吗？\nA: 根据合同约定，正式开课前可全额退费，开课后按实际消耗扣费。', tags: ['FAQ','通用'] }
+    );
+  }
+  
+  const filtered = filter === 'all' ? contentStore : contentStore.filter(c => c.category === filter);
+  
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"><i class="fas fa-comment-dots"></i></div><p>暂无话术模板</p></div>';
+    return;
+  }
+  
+  let html = '';
+  filtered.forEach(c => {
+    html += '<div class="content-card">';
+    html += '<div class="c-title">' + c.title + '</div>';
+    html += '<div class="c-tags">';
+    html += '<span class="c-tag">' + (cats[c.category] || c.category) + '</span>';
+    (c.tags || []).forEach(t => { html += '<span class="c-tag">' + t + '</span>'; });
+    html += '</div>';
+    html += '<div class="c-preview">' + c.content.replace(/\n/g, '<br>') + '</div>';
+    html += '<div style="display:flex;gap:8px;margin-top:12px;">';
+    html += '<button class="btn-secondary copy-content" data-text="' + encodeURIComponent(c.content) + '" style="flex:1;justify-content:center;font-size:12px;padding:8px;"><i class="fas fa-copy"></i> 复制</button>';
+    html += '<button class="btn-ghost edit-content" data-id="' + c.id + '" style="font-size:12px;padding:8px 12px;"><i class="fas fa-edit"></i> 编辑</button>';
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+  
+  // Copy
+  el.querySelectorAll('.copy-content').forEach(btn => {
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText(decodeURIComponent(this.dataset.text)).then(() => {
+        toast('已复制到剪贴板', 'success');
+      }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = decodeURIComponent(this.dataset.text);
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        toast('已复制到剪贴板', 'success');
+      });
+    });
+  });
+}
+
+// ---------- AI Brain ----------
+function initBrain() {
+  const aid = $('brain')?.id;
+  const input = $('chatInput');
+  const btn = $('chatSendBtn');
+  
+  // Welcome message
+  if (!$('chatMessages').children.length) {
+    addChatMsg('ai', '您好！我是您的AI经营顾问。请告诉我您遇到的经营问题，比如"本月营收怎么样"或"如何提升续费率"，我会基于您的数据给出建议。');
+  }
+  
+  // Clear chat button
+  $('clearChatBtn').addEventListener('click', function() {
+    $('chatMessages').innerHTML = '';
+    messageHistory = [];
+    addChatMsg('ai', '对话已清空。有什么新的经营问题需要咨询吗？');
+    toast('对话已清空', 'info');
+  });
+  
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addChatMsg('user', text);
+    
+    // Save user message to history
+    messageHistory.push({ role: 'user', content: text });
+    // Keep only last 10
+    if (messageHistory.length > 10) {
+      messageHistory = messageHistory.slice(-10);
+    }
+    
+    // Show typing
+    const typingId = 'typing-' + Date.now();
+    addChatMsg('ai', '<div class="loading-spinner" style="margin:4px auto;width:20px;height:20px;border-width:2px;"></div>', typingId);
+    
+    try {
+      const webSearch = $('webSearchToggle')?.checked || false;
+      const data = await api('POST', '/brain/chat', { message: text, web_search: webSearch, history: messageHistory });
+      const reply = data.reply || data.data?.reply || '抱歉，暂时无法回答这个问题。请尝试换个问法。';
+      const msgEl = document.getElementById(typingId);
+      if (msgEl) msgEl.remove();
+      
+      // Save AI reply to history
+      messageHistory.push({ role: 'assistant', content: reply });
+      if (messageHistory.length > 10) {
+        messageHistory = messageHistory.slice(-10);
+      }
+      
+      // Typewriter effect
+      typewriterMsg('ai', formatAiReply(reply));
+    } catch(e) {
+      const msgEl = document.getElementById(typingId);
+      if (msgEl) msgEl.remove();
+      const fallbackReply = getMockBrainReply(text);
+      
+      // Save fallback reply to history
+      messageHistory.push({ role: 'assistant', content: fallbackReply });
+      if (messageHistory.length > 10) {
+        messageHistory = messageHistory.slice(-10);
+      }
+      
+      typewriterMsg('ai', formatAiReply(fallbackReply));
+    }
+  }
+  
+  btn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+  
+  // Quick question buttons
+  document.querySelectorAll('.quick-q').forEach(qbtn => {
+    qbtn.addEventListener('click', () => {
+      input.value = qbtn.dataset.q;
+      sendMessage();
+    });
+  });
+}
+
+function addChatMsg(type, content, id) {
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + type;
+  if (id) el.id = id;
+  el.innerHTML = content;
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  el.appendChild(time);
+  $('chatMessages').appendChild(el);
+  $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+}
+
+// Typewriter effect for AI messages
+function typewriterMsg(type, content, id) {
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + type;
+  if (id) el.id = id;
+  
+  // Create text container (time will be added after typewriter finishes)
+  const textContainer = document.createElement('div');
+  textContainer.className = 'typewriter-content';
+  el.appendChild(textContainer);
+  
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  // Append time after we append el
+  
+  $('chatMessages').appendChild(el);
+  $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+  
+  // Typewriter animation
+  const charArray = content.split('');
+  let charIndex = 0;
+  let currentText = '';
+  
+  function typeNextChar() {
+    if (charIndex < charArray.length) {
+      // Check if this is start of HTML tag
+      if (charArray[charIndex] === '<') {
+        // Find end of tag
+        let tagEnd = charIndex;
+        let depth = 0;
+        while (tagEnd < charArray.length) {
+          if (charArray[tagEnd] === '>') {
+            if (depth === 0) break;
+            depth--;
+          }
+          tagEnd++;
+        }
+        const tag = charArray.slice(charIndex, tagEnd + 1).join('');
+        currentText += tag;
+        charIndex = tagEnd + 1;
+        textContainer.innerHTML = currentText;
+        $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+        setTimeout(typeNextChar, 5);
+      } else {
+        currentText += charArray[charIndex];
+        charIndex++;
+        textContainer.innerHTML = currentText;
+        $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+        const delay = 30 + Math.random() * 20; // 30-50ms random delay
+        setTimeout(typeNextChar, delay);
+      }
+    } else {
+      // Typewriter complete, add time
+      el.appendChild(time);
+      $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+    }
+  }
+  
+  typeNextChar();
+}
+function formatAiReply(text) {
+  // Add bold for core suggestion and action items
+  let html = text;
+  // Split into paragraphs
+  const parts = text.split('\n\n');
+  if (parts.length > 1) {
+    html = parts.map((p, i) => {
+      if (i === 0) return '<div class="msg-bold">' + p + '</div>';
+      if (p.match(/^\d[\.\、]/)) {
+        const items = p.split('\n').filter(l => l.trim()).map(l => '<li>' + l.replace(/^\d[\.\、]\s*/, '') + '</li>').join('');
+        return '<ol class="msg-list">' + items + '</ol>';
+      }
+      return '<div>' + p + '</div>';
+    }).join('');
+  }
+  return html;
+}
+
+// ---------- Knowledge Base ----------
+async function loadKnowledge(query, filter) {
+  const el = $('knowledgeList');
+  let data;
+  try {
+    const q = query ? '?q=' + encodeURIComponent(query) : '';
+    data = (await api('GET', '/knowledge' + q)).data || [];
+  } catch(e) {
+    data = getMockKnowledge();
+  }
+  
+  if (filter && filter !== 'all') data = data.filter(k => k.category === filter);
+  if (query) data = data.filter(k => k.title.includes(query) || (k.content || k.summary || '').includes(query));
+  
+  // Use renderKnowledgeItems for highlighted rendering
+  renderKnowledgeItems(data, query);
+  
+  // Re-bind expand/collapse (overriding the renderKnowledgeItems click which also needs delegation)
+  // The expand/collapse is now handled via card click event delegation
+  el.querySelectorAll('.knowledge-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.btn-sm') || e.target.closest('button')) return;
+      this.classList.toggle('expanded');
+    });
+  });
+}
+
+// ---------- Mock Data ----------
+function getMockDashboard() {
+  return {
+    revenue: { current: 2395000, target: 3000000, completion: 79.8, trend: 'up' },
+    renewal: { rate: 76, target: 80, change: -2.1, trend: 'down' },
+    enrollment: { newStudents: 88, target: 100, completion: 88, trend: 'flat' },
+    monthlyTrend: [
+      { month: '2026-01', revenue: 1850000, renewal: 68 },
+      { month: '2026-02', revenue: 2100000, renewal: 72 },
+      { month: '2026-03', revenue: 2395000, renewal: 76 }
+    ],
+    campusRanking: [
+      { name: '浦东校区', revenue: 582000, completion: 97, renewal: 78, students: 23 },
+      { name: '静安校区', revenue: 491000, completion: 82, renewal: 72, students: 18 },
+      { name: '徐汇校区', revenue: 523000, completion: 87, renewal: 75, students: 20 },
+      { name: '虹口校区', revenue: 387000, completion: 65, renewal: 68, students: 12 },
+      { name: '闵行校区', revenue: 412000, completion: 69, renewal: 70, students: 15 }
+    ],
+    alerts: [
+      { level: 'red', message: '虹口校区营收完成率仅65%，低于预警线', campus: '虹口校区' },
+      { level: 'orange', message: '静安校区续费率环比下降3.2%', campus: '静安校区' },
+      { level: 'yellow', message: '4月有23名学员续费即将到期', campus: '全校' },
+      { level: 'blue', message: '浦东校区连续3月排名第一', campus: '浦东校区' }
+    ]
+  };
+}
+
+function getMockTables() {
+  return [
+    { id: 't1', fileName: '3月校区业绩汇总.xlsx', type: '营收', status: 'analyzed', uploadedAt: '2026-04-25T10:00:00Z', tableType: '营收' },
+    { id: 't2', fileName: '在读学员明细_2026Q1.xlsx', type: '续费', status: 'analyzed', uploadedAt: '2026-04-20T09:00:00Z', tableType: '续费' },
+    { id: 't3', fileName: '销售跟进记录_3月.csv', type: '招生', status: 'analyzed', uploadedAt: '2026-04-26T14:00:00Z', tableType: '招生' }
+  ];
+}
+
+function getMockBrainReply(text) {
+  const replies = {
+    '营收': '核心建议：当前营收已完成目标的80%，处于正常区间但需关注增速放缓趋势。\n\n数据参考：\n- 本月目标：¥3,000,000\n- 已完成：¥2,395,000\n- 完成率：79.8%\n- 同比增长：+8.5%\n\n行动建议：\n1. 重点跟进虹口校区营收提升，该校区连续两月落后\n2. 建议开展"老带新"活动，预计可提升营收15%\n3. 4月中旬回访未续费家长，挽回率达30%以上',
+    '续费': '核心建议：整体续费率76%，处于行业中等水平，高中段续费率偏低需重点关注。\n\n数据参考：\n- 整体续费率：76%\n- 小学段：82% (优秀)\n- 初中段：76% (正常)\n- 高中段：68% (偏低)\n\n行动建议：\n1. 对高中段家长进行1对1沟通，了解不满原因\n2. 为高中学员增加升学规划服务增值\n3. 建立续费预警机制，提前30天开始续费动作',
+    '招生': '核心建议：本月新增学员88人，完成率73%，招生节奏偏慢。\n\n数据参考：\n- 目标：120人\n- 已完成：88人\n- 完成率：73%\n- 距离目标差：32人\n\n行动建议：\n1. 加强周末地推活动，周末到访量可提升40%\n2. 利用现有学员转介绍，设置推荐奖励\n3. 线上广告投放增加20%预算',
+    'default': '核心建议：基于您机构的经营数据，有几个关键方向值得关注。\n\n数据参考：\n- 本月营收在正常范围内增长\n- 续费率保持在行业平均水平\n- 招生还有提升空间\n\n行动建议：\n1. 优先关注营收完成率，确保目标达成\n2. 续费工作前置，建立家长沟通计划\n3. 招生渠道多元化，降低单一渠道依赖'
+  };
+  
+  for (const [key, val] of Object.entries(replies)) {
+    if (text.includes(key) && key !== 'default') return val;
+  }
+  return replies['default'];
+}
+
+function getMockKnowledge() {
+  return [
+    { id: 'k1', title: '教培机构年度运营规划指南', content: '教培机构的年度运营规划是全年工作的纲要，需要从以下几个方面进行系统规划：\n\n1. 目标设定：明确全年营收目标、学员增长目标、续费目标\n2. 课程规划：根据市场需求调整课程体系\n3. 人员配置：确定各岗位的人员需求和培训计划\n4. 市场推广：制定全年的营销日历和活动计划\n5. 预算编制：合理分配各项目的预算\n\n建议在每年12月完成下一年度的运营规划，并在每季度进行复盘调整。', summary: '教培机构的年度运营规划是全年工作的纲要...', category: '运营', tags: ['运营','规划'], source: '行业白皮书', updatedAt: '2026-03-15T10:00:00Z' },
+    { id: 'k2', title: '暑期招生策略与执行方案', content: '暑期是教培机构的黄金招生期，通常占全年营收的35-40%。\n\n核心策略：\n1. 早鸟优惠：5月底前报名享8折\n2. 老带新：老学员推荐新学员各减200元\n3. 体验课：9.9元超值体验课包\n4. 地推活动：周末在商圈、学校周边进行地推\n5. 线上投放：抖音+朋友圈广告精准触达\n\n建议在5月中旬启动预热，6月进入集中推广期。', summary: '暑期是教培机构的黄金招生期，通常占全年营收的35-40%...', category: '招生', tags: ['招生','暑期'], source: '实战经验', updatedAt: '2026-04-10T14:00:00Z' },
+    { id: 'k3', title: '续费管理SOP流程', content: '续费管理是机构健康运营的核心指标，建议建立以下标准化流程：\n\n续费周期管理：\n- T-60天：发送续费提醒通知\n- T-45天：班主任进行首次沟通\n- T-30天：发送续费优惠政策\n- T-15天：课程顾问跟进确认\n- T-0天：到期日最后确认\n\n续费激励：\n- 提前续费：额外赠送2节课\n- 连续续费：学费锁定不涨价\n- 全科续费：享受折上折', summary: '续费管理是机构健康运营的核心指标...', category: '续费', tags: ['续费','SOP'], source: '管理手册', updatedAt: '2026-02-20T09:00:00Z' },
+    { id: 'k4', title: '校区管理六项核心指标', content: '校区管理的六大核心指标：\n\n1. 营收完成率：实际营收/目标营收 × 100%\n2. 续费率：续费学员数/应续费学员数 × 100%\n3. 满班率：实际人数/班级容量 × 100%\n4. 课消率：实际上课课时/计划课时 × 100%\n5. 到访转化率：签约数/到访数 × 100%\n6. 人效比：营收/员工人数\n\n建议每周关注这六项指标，及时发现异常并采取措施。', summary: '校区管理的六大核心指标...', category: '管理', tags: ['管理','指标'], source: '内部培训', updatedAt: '2026-01-10T10:00:00Z' },
+    { id: 'k5', title: '教培行业最新政策解读', content: '2026年教培行业主要政策动向：\n\n1. 学科类培训继续实行"双减"政策，非学科类培训持证上岗\n2. 线上培训需完成ICP备案\n3. 收费周期不超过3个月\n4. 教师资格证成为硬性要求\n\n合规是机构的生命线，建议定期关注当地教育行政部门的最新通知。', summary: '2026年教培行业主要政策动向...', category: '管理', tags: ['政策','合规'], source: '政府文件', updatedAt: '2026-04-01T08:00:00Z' },
+    { id: 'k6', title: '教培机构财务健康指标速查', content: '教培机构财务健康的核心指标：\n\n1. 毛利率：建议50%-65%，低于40%需警惕\n2. 净利率：建议15%-25%\n3. 单校区盈亏平衡点：月营收≥校区月固定成本\n4. 现金流覆盖月数：建议≥3个月\n5. 人均产出（人效）：月营收/员工数，建议≥1.5万\n6. 课消收入占比：建议≥80%（预收款消耗进度）\n\n每月盘点一次财务健康度，提前发现风险。', summary: '教培机构财务健康的核心指标速查...', category: '财务', tags: ['财务','指标','健康'], source: '财务管理手册', updatedAt: '2026-04-15T09:00:00Z' },
+    { id: 'k7', title: '家长满意度调查模板', content: '家长满意度调查是续费工作的晴雨表，建议每季度执行一次。\n\n调查维度（1-5分评分）：\n1. 教学质量：老师讲课是否清晰、孩子是否有进步\n2. 服务体验：班主任沟通是否及时、问题是否快速解决\n3. 环境设施：校区环境是否整洁、安全\n4. 课程价值：课程是否值得这个价格\n5. 推荐意愿：愿意推荐给朋友吗（NPS）\n\n操作建议：用问卷星/金数据制作，附带小礼品抽奖提升回收率，样本量建议≥在册学员30%。', summary: '家长满意度调查是续费工作的晴雨表...', category: '服务', tags: ['家长','满意度','调查','续费'], source: '行业最佳实践', updatedAt: '2026-04-12T14:00:00Z' },
+    { id: 'k8', title: '教师培训体系搭建指南', content: '教师是教培机构最核心的资产，系统化的培训体系是保证教学质量的关键。\n\n培训体系三层架构：\n\n一、入职培训（第1-4周）：\n- 企业文化与规章制度\n- 教材教法基本功\n- 课堂管理技巧\n- 跟岗听课与试讲考核\n\n二、在职提升（每月）：\n- 学科教研：每周一次集体备课\n- 教学比武：每学期一次优质课评比\n- 家长沟通技巧培训\n- 续费话术与转化训练\n\n三、晋升培养（每半年）：\n- 骨干教师→学科带头人\n- 教学管理能力培训\n\n考核方式：学生进步率、续费率、家长满意度综合评分。', summary: '教师是教培机构最核心的资产...', category: '师资', tags: ['教师','培训','师资'], source: '管理手册', updatedAt: '2026-03-20T11:00:00Z' },
+    { id: 'k9', title: '培训机构品牌建设四步法', content: '教培行业的品牌建设不是花大钱打广告，而是做口碑。四步法：\n\n1. 定位：\n   - 你的差异化是什么？（提分效果？素质教育？价格优势？）\n   - 一句话说清楚你是谁\n\n2. 视觉：\n   - 统一Logo+品牌色+校区装修风格\n   - 微信头像/朋友圈封面/宣传单页统一\n\n3. 内容：\n   - 每周3-5条学员成长故事（家长最信服的内容）\n   - 定期发布教学干货\n   - 毕业学员/竞赛成绩展示\n\n4. 传播：\n   - 老带新激励机制\n   - 异业合作（书店、文具店等）\n   - 社区公益活动\n\n品牌建设的本质是：让每一个家长都愿意为你代言。', summary: '教培行业品牌建设四步法...', category: '运营', tags: ['品牌','运营','口碑'], source: '品牌咨询', updatedAt: '2026-04-05T10:00:00Z' },
+    { id: 'k10', title: '课程定价策略与调价方法', content: '定价是教培机构最重要的经营决策之一，直接影响营收和市场份额。\n\n定价策略：\n1. 成本加成法：成本×（1+期望利润率）\n2. 竞争参照法：比同区域同品类机构低10-15%或持平\n3. 价值定价法：根据效果/口碑溢价\n\n常见定价模型：\n- 单科价：150-300元/课时（视城市和品类而定）\n- 套餐价：报全年享受8折（锁定续费）\n- 联报优惠：多科同报享受折上折\n\n调价原则：\n- 每年调价不超过15%\n- 提前一个月通知家长\n- 老学员价格锁定1-2年\n- 涨价的同步提升服务质量', summary: '定价是教培机构最重要的经营决策之一...', category: '财务', tags: ['定价','策略','财务'], source: '定价指南', updatedAt: '2026-02-28T08:00:00Z' },
+    { id: 'k11', title: '竞品分析与差异化策略', content: '知己知彼，百战不殆。竞品分析是机构市场策略的基础。\n\n分析框架：\n\n1. 竞品识别（半径3公里内的同品类机构）：\n   - 直接竞品：同品类、同价格段\n   - 间接竞品：同品类、不同价格段\n   - 替代品：线上课程、自学平台\n\n2. 调研维度：\n   - 课程体系、师资力量、学员人数\n   - 定价策略、优惠活动、投诉率\n   - 家长口碑、续费率、满班率\n\n3. 差异化切入点：\n   - 找到对方薄弱而自己擅长的领域\n   - All in one 的优势\n   - 服务细节上的超越（如课后反馈时效）', summary: '竞品分析是机构市场策略的基础...', category: '市场', tags: ['竞品','分析','市场'], source: '市场策略指南', updatedAt: '2026-03-30T09:00:00Z' },
+    { id: 'k12', title: '校区选址与装修指南', content: '校区选址直接决定50%以上的招生天花板，装修则影响家长第一印象。\n\n选址要点（打分制，满分100）：\n1. 周边社区密度（30分）：1公里内常住人口≥3万\n2. 交通便利性（20分）：距公交站/地铁站步行≤10分钟\n3. 学校/幼儿园密度（25分）：1公里内小学/幼儿园≥3所\n4. 竞品密度（15分）：竞品数量适中（有竞争说明有需求）\n5. 租金合理性（10分）：租金占营收≤25%\n\n装修核心：\n- 安全第一：消防通道、应急出口\n- 明亮温馨：3000-4000K色温灯光\n- 家长等待区：舒适座椅+WiFi+充电口\n- 教室隔音：隔音棉+双层玻璃\n\n不省钱的地方：消防改造、空调系统、地面安全。', summary: '校区选址直接决定50%以上的招生天花板...', category: '运营', tags: ['选址','装修','校区'], source: '扩张手册', updatedAt: '2026-04-08T11:00:00Z' },
+    { id: 'k13', title: '校区运营日报/周报/月报模板', content: '数据化管理是机构从粗放走向精细的关键。三级报表体系：\n\n日报（当天晚上发）：\n- 今日到访人数、试听人数、成交人数、成交金额\n- 今日课消数、请假数\n\n周报（每周一早上发）：\n- 本周营收 vs 周目标\n- 本周新增学员数 vs 周目标\n- 续费进度（本周应续费人数/已续费人数）\n- 下周重点事项\n\n月报（次月3号前发）：\n- 月度经营数据全景（营收/成本/利润）\n- 各校区排名\n- 续费率/满班率/课消率\n- 异常预警\n- 下月目标与策略', summary: '数据化管理是机构从粗放走向精细的关键...', category: '管理', tags: ['报表','日报','周报','管理'], source: '管理体系', updatedAt: '2026-03-25T14:00:00Z' },
+    { id: 'k14', title: '招生渠道投放ROI分析', content: '不同招生渠道的投入产出比差异巨大，定期分析ROI是优化投放的关键。\n\n常见渠道ROI参考（上海地区）：\n\n1. 地推（发单+展位）：获客成本50-120元，转化率3-8%\n2. 老带新：获客成本20-50元（奖励成本），转化率15-30%\n3. 朋友圈广告：获客成本80-200元，转化率1-3%\n4. 抖音投放：获客成本60-150元，转化率2-5%\n5. 美团/大众点评：获客成本100-300元，转化率5-12%\n6. 异业合作：获客成本30-80元，转化率8-15%\n\n分析公式：\n单渠道获客成本 = 该渠道总投入 / 该渠道带来签约数\n单渠道ROI = （该渠道签约总营收 - 投入） / 投入\n\n建议每季度做一次全渠道ROI分析，砍掉低效渠道，集中资源到高效渠道。', summary: '不同招生渠道的投入产出比差异巨大...', category: '招生', tags: ['招生','渠道','ROI','投放'], source: '投放分析', updatedAt: '2026-04-18T10:00:00Z' },
+    { id: 'k15', title: '续费预警与干预机制', content: '续费工作是机构的生命线，建立预警机制可以在流失发生前及时干预。\n\n预警层级：\n\n🔴 红色预警（T-30天，流失高风险）：\n- 近30天缺勤≥3次\n- 家长投诉/投诉未彻底解决\n- 费用已到期超过7天未续\n\n🟡 黄色预警（T-45天，需要关注）：\n- 缺勤2次或请假频繁\n- 作业连续2次未完成\n- 家长对教学进度有疑问\n\n🟢 绿色预警（T-60天，正常维护）：\n- 出勤正常、作业完成\n- 家长反馈良好\n- 正常续费周期\n\n干预动作：\n红色→主管+顾问上门家访\n黄色→班主任深度沟通\n绿色→发送续费优惠提醒', summary: '续费工作是机构的生命线，建立预警机制可以在流失发生前及时干预...', category: '续费', tags: ['续费','预警','干预'], source: '续费管理SOP', updatedAt: '2026-04-20T09:00:00Z' },
+    { id: 'k16', title: '中小机构数字化转型路线图', content: '教培机构的数字化转型不是买一套系统就完事，而是分阶段推进。\n\n第一阶段（1-2周）：数据在线化\n- 把Excel表格转成数字化记录\n- 建立学员档案、财务记录\n- 选择一个管理工具开始用\n\n第二阶段（1个月）：流程数字化\n- 招生→试听→签约→排课→消课→续费全流程在线化\n- 财务报表自动化\n- 家校沟通在线化\n\n第三阶段（2-3个月）：数据驱动决策\n- 各校区数据实时看板\n- 预警系统自动通知\n- AI辅助经营诊断\n\n第四阶段（3-6个月）：智能化运营\n- AI生成营销内容\n- 智能排课\n- 精准续费预测\n\n建议从最小的切口开始，先跑通一个流程再扩展。', summary: '教培机构的数字化转型不是买一套系统就完事...', category: '管理', tags: ['数字化','转型','技术'], source: '数字化转型白皮书', updatedAt: '2026-04-22T10:00:00Z' }
+  ];
+}
+
+
+// ---------- Page Load Functions ----------
+async function loadContentPage() {
+  $('contentList').innerHTML = '<div class="loading-spinner"></div>';
+  try {
+    const data = await api('GET', '/content/templates');
+    if (data.data && data.data.length) {
+      renderContentItems(data.data);
+      return;
+    }
+  } catch(e) {}
+  // Mock fallback
+  renderContentItems([
+    {category:'朋友圈话术', title:'续费提醒文案', content:'【续费提醒】亲爱的家长，您孩子的课程即将到期，请及时续费...'},
+    {category:'私信话术', title:'试听课邀约', content:'您好，我们本周末有免费试听课，邀请您带孩子来体验...'},
+    {category:'朋友圈话术', title:'学员成果展示', content:'【学员风采】恭喜小明同学在本届美术大赛中获得一等奖！'},
+  ]);
+}
+
+function renderContentItems(items) {
+  $('contentList').innerHTML = items.map(t => `<div class="content-card" data-category="\${CAT_MAP[t.category]||t.category}"><div class="cc-badge">\${t.category}</div><div class="cc-title">\${t.title}</div><div class="cc-body">\${t.content.substring(0,60)}...</div><div class="cc-actions"><button class="btn-sm" onclick="copyText('\${t.content.replace(/[\"\'\\]/g,'')}')"><i class="fas fa-copy"></i> 复制</button>
+  <button class="btn-sm" onclick="window.editContent(\${t.id})"><i class="fas fa-edit"></i></button>
+  <button class="btn-sm" onclick="window.deleteContent(\${t.id})"><i class="fas fa-trash"></i></button>
+</div></div>`).join('');
+}
+
+function loadContent(filter) {
+  if (!filter) filter = 'all';
+  const cards = document.querySelectorAll('.content-card');
+  cards.forEach(c => {
+    c.style.display = (filter === 'all' || c.dataset.category === filter) ? 'block' : 'none';
+  });
+}
+
+async function loadBrainPage() {
+  const container = $('chatMessages');
+  if (container.children.length === 0) {
+    container.innerHTML = '<div class="chat-msg bot"><div class="chat-name">方舟智囊</div><div class="chat-bubble">您好！我是您的经营顾问，请问有什么可以帮您？试试输入“本月营收怎么样”或“续费怎么提升”。</div></div>';
+  }
+}
+
+async function loadKnowledgePage() {
+  $('knowledgeList').innerHTML = '<div class="loading-spinner"></div>';
+  if ($('webSearchPanel')) $('webSearchPanel').style.display = 'none';
+  if ($('webSearchResults')) $('webSearchResults').innerHTML = '<div style="text-align:center;padding:40px 0;color:#6b7280;font-size:14px;">输入关键词开始联网搜索最新教培资讯</div>';
+  // Load categories
+  try {
+    const catRes = await api('GET', '/knowledge/categories');
+    renderCategoryTree(catRes.data || []);
+  } catch(e) { renderCategoryTree([]); }
+  // Load items
+  try {
+    const data = await api('GET', '/knowledge?q=');
+    if (data.data && data.data.length) {
+      renderKnowledgeItems(data.data, $('knowledgeSearch').value.trim());
+      return;
+    }
+  } catch(e) {}
+  renderKnowledgeItems(getMockKnowledge(), $('knowledgeSearch').value.trim());
+}
+
+function renderCategoryTree(cats) {
+  const tree = $('categoryTree');
+  // Keep "全部" item
+  tree.innerHTML = '<div class="cat-tree-item active" data-cat="all" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#e5e7eb;background:rgba(129,140,248,0.15);"><i class="fas fa-folder-open" style="color:#818cf8;font-size:12px;width:16px;"></i> 全部 <span class="cat-count" style="margin-left:auto;font-size:11px;color:#6b7280;">0</span></div>';
+  cats.forEach(c => {
+    tree.innerHTML += '<div class="cat-tree-item" data-cat="' + c.name + '" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#e5e7eb;"><i class="fas fa-folder" style="color:#6b7280;font-size:12px;width:16px;"></i> ' + c.name + ' <span class="cat-count" style="margin-left:auto;font-size:11px;color:#6b7280;">0</span></div>';
+  });
+  // Bind clicks
+  tree.querySelectorAll('.cat-tree-item').forEach(el => {
+    el.addEventListener('click', function() {
+      tree.querySelectorAll('.cat-tree-item').forEach(i => {
+        i.style.background = 'transparent'; i.style.color = '#e5e7eb';
+        const ic = i.querySelector('i.fa-folder-open, i.fa-folder');
+        if (ic) { ic.className = 'fas fa-folder'; ic.style.color = '#6b7280'; ic.style.fontSize = '12px'; ic.style.width = '16px'; }
+      });
+      this.style.background = 'rgba(129,140,248,0.15)'; this.style.color = '#e5e7eb';
+      const ic = this.querySelector('i'); if (ic) { ic.className = 'fas fa-folder-open'; ic.style.color = '#818cf8'; }
+      const cat = this.dataset.cat;
+      filterKnowledge($('knowledgeSearch').value.trim(), cat);
+      if (cat === 'websearch') setTimeout(() => { if ($('webSearchInput')) $('webSearchInput').focus(); }, 100);
+    });
+  });
+}
+
+// Knowledge search highlight helper
+function highlightText(text, query) {
+  if (!query || !text) return escapeHtml(text);
+  const escaped = escapeHtml(text);
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp('(' + escapedQuery.replace(/\s+/g, '|') + ')', 'gi');
+  // First escape, then apply highlighter on HTML text
+  return escaped.replace(regex, function(match) {
+    return '<mark style="background:rgba(99,102,241,0.3);color:#fff;padding:1px 4px;border-radius:3px;">' + match + '</mark>';
+  });
+}
+
+function renderKnowledgeItems(items, searchQuery) {
+  const q = searchQuery || '';
+  // Update category counts
+  const catCounts = {}; items.forEach(k => { const c = k.category||'all'; catCounts[c] = (catCounts[c]||0) + 1; });
+  document.querySelectorAll('#categoryTree .cat-count').forEach(el => {
+    const parent = el.closest('.cat-tree-item');
+    if (parent) el.textContent = catCounts[parent.dataset.cat] || 0;
+  });
+  document.querySelector('#categoryTree .cat-tree-item[data-cat="all"] .cat-count').textContent = items.length;
+  
+  $('knowledgeList').innerHTML = items.map(k => {
+    const title = q ? highlightText(k.title, q) : escapeHtml(k.title);
+    const summaryText = k.content ? k.content.substring(0,100) : (k.summary || '');
+    const summary = q ? highlightText(summaryText, q) : escapeHtml(summaryText);
+    const fullContent = k.content || '';
+    const fullContentHighlighted = q ? fullContent.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '|') + ')', 'gi'), function(match) {
+      return '<mark style="background:rgba(99,102,241,0.3);color:#fff;padding:1px 4px;border-radius:3px;">' + match + '</mark>';
+    }) : escapeHtml(fullContent).replace(/\n/g, '<br>');
+    
+    return `<div class="knowledge-card" data-category="\${k.category||'all'}" data-id="\${k.id}"><div class="k-title">${title}</div><div class="k-meta"><span class="k-badge">\${escapeHtml(k.category||'')}</span></div><div class="k-summary">${summary}</div><div class="k-full">${fullContentHighlighted}</div><div class="cc-actions" style="margin-top:10px;"><button class="btn-sm" onclick="window.editKnowledge(\${k.id})"><i class="fas fa-edit"></i></button><button class="btn-sm" onclick="window.deleteKnowledge(\${k.id})" style="margin-left:6px;"><i class="fas fa-trash"></i></button></div></div>`;
+  }).join('');
+}
+
+function filterKnowledge(q, filter) {
+  const isWebSearch = filter === 'websearch';
+  $('knowledgeList').style.display = isWebSearch ? 'none' : 'grid';
+  $('webSearchPanel').style.display = isWebSearch ? 'block' : 'none';
+  $('newKnowledgeBtn').style.display = isWebSearch ? 'none' : 'flex';
+  if (!isWebSearch) {
+    const cards = document.querySelectorAll('.knowledge-card');
+    cards.forEach(c => {
+      const matchFilter = filter === 'all' || c.dataset.category === filter;
+      const matchSearch = !q || c.textContent.includes(q);
+      c.style.display = matchFilter && matchSearch ? 'block' : 'none';
+    });
+  }
+}
+
+async function performWebSearch(query) {
+  if (!query) return [];
+  const panel = $('webSearchResults');
+  panel.innerHTML = '<div style="text-align:center;padding:30px;color:#818cf8;font-size:14px;"><i class="fas fa-spinner fa-spin"></i> 正在搜索...</div>';
+  try {
+    const res = await api('POST', '/knowledge/search-web', { query });
+    const items = res.data || [];
+    panel.innerHTML = renderWebSearchResults(items);
+    return items;
+  } catch(e) {
+    panel.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;font-size:14px;">搜索失败: ' + e.message + '</div>';
+    return [];
+  }
+}
+
+function renderWebSearchResults(items) {
+  if (!items.length) {
+    return '<div style="text-align:center;padding:30px;color:#6b7280;font-size:14px;">未找到相关结果，请尝试其他关键词</div>';
+  }
+  return '<div style="margin-bottom:8px;color:#9ca3af;font-size:12px;">找到 ' + items.length + ' 条结果</div>' +
+    items.map((r, i) => '<div style="background:#111827;border:1px solid #1f2937;border-radius:12px;padding:16px;margin-bottom:12px;transition:all .2s;" onmouseover="this.style.borderColor=\'#818cf8\'" onmouseout="this.style.borderColor=\'#1f2937\'">' +
+      '<div style="font-size:14px;font-weight:600;margin-bottom:6px;">' +
+        (r.url ? '<a href="' + r.url + '" target="_blank" style="color:#e5e7eb;text-decoration:none;" onmouseover="this.style.color=\'#818cf8\'" onmouseout="this.style.color=\'#e5e7eb\'">' + r.title + '</a>' : '<span>' + r.title + '</span>') +
+      '</div>' +
+      '<div style="font-size:13px;color:#9ca3af;line-height:1.5;margin-bottom:10px;">' + r.snippet + '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<span style="font-size:11px;color:#6b7280;">来源: ' + r.source + '</span>' +
+        '<button class="btn-sm" onclick="addSearchResultToKnowledge(' + i + ')" style="font-size:12px;"><i class="fas fa-plus"></i> 添加到知识库</button>' +
+      '</div>' +
+    '</div>').join('');
+}
+
+// Store search results for adding to knowledge base
+let _lastSearchResults = [];
+
+async function addSearchResultToKnowledge(index) {
+  const r = _lastSearchResults[index];
+  if (!r) return;
+  try {
+    await api('POST', '/knowledge', {
+      title: r.title.substring(0, 100),
+      category: '运营',
+      content: r.snippet,
+      source: r.url || r.source,
+      tags: ['联网搜索']
+    });
+    toast('已添加到知识库', 'success');
+    // Refresh knowledge page when switching back from web search
+    _knowledgeNeedsRefresh = true;
+  } catch(e) {
+    toast('添加失败: ' + e.message, 'error');
+  }
+}
+
+let _knowledgeNeedsRefresh = false;
+
+async function loadSettingsPage() {
+  try {
+    const data = await api('GET', '/org/profile');
+    if (data && data.data) {
+      const p = data.data;
+      if ($('settingsName')) $('settingsName').value = p.name || '方舟教育';
+      if ($('settingsCampuses')) $('settingsCampuses').value = p.campuses || 1;
+      if ($('settingsStaff')) $('settingsStaff').value = p.staffCount || 0;
+      if ($('settingsStudents')) $('settingsStudents').value = p.studentCount || 0;
+      if (p.courseCategories && Array.isArray(p.courseCategories) && $('tagContainer')) {
+        const tc = $('tagContainer');
+        // Keep the input element, remove existing tags
+        const input = tc.querySelector('#tagInput');
+        tc.innerHTML = '';
+        p.courseCategories.forEach(cat => {
+          const tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.dataset.tag = cat;
+          tag.innerHTML = '<span>' + cat + '</span><span class="tag-remove">&times;</span>';
+          tc.appendChild(tag);
+        });
+        if (input) tc.appendChild(input);
+      }
+    }
+  } catch(e) {}
+}
+
+let editingKnowledgeId = null;
+
+window.editKnowledge = async function(id) {
+  try {
+    const res = await api('GET', '/knowledge');
+    const items = res.data || [];
+    const item = items.find(k => k.id === id);
+    if (!item) { toast('条目不存在', 'error'); return; }
+    editingKnowledgeId = id;
+    $('knowledgeFormTitle').textContent = '编辑知识条目';
+    $('knowledgeFormTitleInput').value = item.title || '';
+    $('knowledgeFormContent').value = item.content || '';
+    $('knowledgeFormCategory').value = item.category || '通用';
+    $('knowledgeFormTags').value = (item.tags || []).join(', ');
+    $('knowledgeFormSource').value = item.source || '';
+    $('knowledgeModal').classList.add('open');
+  } catch(e) { toast('加载失败', 'error'); }
+};
+
+window.deleteKnowledge = async function(id) {
+  if (!confirm('确定删除该知识条目？')) return;
+  try {
+    const r = await api('DELETE', '/knowledge/' + id);
+    if (r.ok) {
+      toast('已删除', 'success');
+      loadKnowledgePage();
+    }
+  } catch(e) { toast('删除失败', 'error'); }
+};
+
+window.editContent = async function(id) {
+  try {
+    const res = await api('GET', '/content/templates');
+    const items = res.data || [];
+    const item = items.find(t => t.id === id);
+    if (!item) { toast('话术不存在', 'error'); return; }
+    editingContentId = id;
+    $('contentModalTitle').textContent = '编辑话术';
+    $('contentFormTitle').value = item.title || '';
+    $('contentFormContent').value = item.content || '';
+    // Map category name to dropdown value
+    const catVal = CAT_MAP[item.category] || 'general';
+    $('contentFormCategory').value = catVal;
+    $('contentFormTags').value = (item.tags || []).join(', ');
+    $('contentModal').classList.add('open');
+  } catch(e) { toast('加载失败', 'error'); }
+};
+
+window.deleteContent = async function(id) {
+  if (!confirm('确定删除该话术？')) return;
+  try {
+    const r = await api('DELETE', '/content/templates/' + id);
+    if (r.ok) {
+      toast('已删除', 'success');
+      loadContentPage();
+    }
+  } catch(e) { toast('删除失败', 'error'); }
+};
+
+let editingContentId = null;
+
+async function exportData(type) {
+  try {
+    const r = await fetch('/api/data/export?type='+type);
+    if (!r.ok) { toast('暂无数据', 'error'); return; }
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = type + '_export.csv';
+    a.click();
+    toast('导出成功', 'success');
+  } catch(e) { toast('导出失败', 'error'); }
+}
+
+// Map display category names to dropdown values
+const CAT_MAP = {'朋友圈话术':'pyq','私信话术':'dm','邀约话术':'yy','续费话术':'xf','通用':'general'};
+const CAT_MAP_REV = {'pyq':'朋友圈话术','dm':'私信话术','yy':'邀约话术','xf':'续费话术','general':'通用'};
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  toast('已复制到剪贴板', 'success');
+}
+window.copyText = copyText;
+
+// ---------- Init ----------
+function init() {
+  // Register page elements
+  document.querySelectorAll('.page').forEach(el => {
+    pageEls[el.id.replace('page-', '')] = el;
+  });
+  
+  // Sidebar navigation
+  document.querySelectorAll('.nav-item, .mnav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const page = item.dataset.page;
+      if (page) navigate(page);
+    });
+  });
+  
+  // Content filter tabs
+  document.querySelectorAll('#contentFilter .filter-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('#contentFilter .filter-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      loadContent(this.dataset.filter);
+    });
+  });
+  
+  // Knowledge search
+  $('knowledgeSearchBtn').addEventListener('click', () => {
+    const activeCat = document.querySelector('#categoryTree .cat-tree-item.active')?.dataset?.cat || 'all';
+    filterKnowledge($('knowledgeSearch').value.trim(), activeCat);
+  });
+  $('knowledgeSearch').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('knowledgeSearchBtn').click();
+  });
+  
+  // Category tree click
+  document.querySelectorAll('#categoryTree .cat-tree-item').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('#categoryTree .cat-tree-item').forEach(i => {
+        i.style.background = 'transparent'; i.style.color = '#e5e7eb';
+        const ic = i.querySelector('i'); if (ic) ic.style.color = i.dataset.cat === 'websearch' ? '#34d399' : '#6b7280';
+      });
+      this.style.background = 'rgba(129,140,248,0.15)'; this.style.color = '#e5e7eb';
+      const ic = this.querySelector('i'); if (ic) ic.style.color = '#818cf8';
+      const cat = this.dataset.cat;
+      filterKnowledge($('knowledgeSearch').value.trim(), cat);
+      if (cat === 'websearch') setTimeout(() => { if ($('webSearchInput')) $('webSearchInput').focus(); }, 100);
+    });
+  });
+  
+  // Web search
+  $('webSearchBtn').addEventListener('click', () => {
+    const q = ($('webSearchInput')?.value || '').trim();
+    if (q) {
+      _lastSearchResults = [];
+      performWebSearch(q).then(results => {
+        if (results) _lastSearchResults = results;
+      });
+    }
+  });
+  $('webSearchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('webSearchBtn').click();
+  });
+  
+  // Category management
+  $('manageCatsBtn').addEventListener('click', async () => {
+    const list = $('catList'); list.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;"><i class="fas fa-spinner fa-spin"></i></div>';
+    $('catModal').classList.add('open');
+    try {
+      const res = await api('GET', '/knowledge/categories');
+      const cats = res.data || [];
+      list.innerHTML = cats.map(c => '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#1f2937;border-radius:8px;">' +
+        '<span style="color:#e5e7eb;font-size:14px;">' + c.name + '</span>' +
+        '<button class="btn-sm delete-cat" data-id="' + c.id + '" style="color:#ef4444;padding:4px 8px;font-size:12px;"><i class="fas fa-trash"></i></button>' +
+      '</div>').join('');
+      list.querySelectorAll('.delete-cat').forEach(b => {
+        b.addEventListener('click', async function() {
+          if (!confirm('确认删除此分类？')) return;
+          try { await api('DELETE', '/knowledge/categories/' + this.dataset.id); manageCatsBtn.click(); toast('已删除', 'info'); } 
+          catch(e) { toast('删除失败', 'error'); }
+        });
+      });
+    } catch(e) { list.innerHTML = '<div style="text-align:center;color:#ef4444;font-size:13px;">加载失败</div>'; }
+  });
+  $('addCatBtn').addEventListener('click', async () => {
+    const name = $('newCatInput').value.trim();
+    if (!name) { toast('请输入分类名称', 'error'); return; }
+    try {
+      await api('POST', '/knowledge/categories', { name });
+      $('newCatInput').value = '';
+      toast('分类已添加', 'success');
+      $('manageCatsBtn').click();
+      loadKnowledgePage();
+    } catch(e) { toast('添加失败', 'error'); }
+  });
+  $('newCatInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('addCatBtn').click(); });
+  
+  // Content modal
+  $('newContentBtn').addEventListener('click', () => {
+    editingContentId = null;
+    $('contentModalTitle').textContent = '新建话术模板';
+    $('contentFormTitle').value = '';
+    $('contentFormContent').value = '';
+    $('contentFormTags').value = '';
+    $('contentModal').classList.add('open');
+  });
+  
+  // Batch AI generation
+  $('batchGenBtn').addEventListener('click', async function() {
+    const cats = ['pyq','dm','yy','xf','general'];
+    const catLabels = {'pyq':'朋友圈话术','dm':'私信话术','yy':'邀约话术','xf':'续费话术','general':'通用'};
+    const topics = ['暑期招生预热','开学季活动','家长会邀约','老带新激励','课程新品上市'];
+    const status = $('batchGenStatus');
+    this.disabled = true; status.style.display = 'inline';
+    let count = 0;
+    for (let i = 0; i < cats.length; i++) {
+      try {
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在生成 ' + catLabels[cats[i]] + ' (' + (i+1) + '/' + cats.length + ')...';
+        const data = await api('POST', '/content/generate', { category: cats[i], topic: topics[i] });
+        if (data && data.data) {
+          await api('POST', '/content/templates', { category: cats[i], title: data.data.title || (catLabels[cats[i]] + ': ' + topics[i]), content: data.data.content, tags: ['AI生成',topics[i]] });
+          count++;
+        }
+      } catch(e) {
+        console.warn('Batch gen error for', cats[i], e.message);
+      }
+    }
+    status.style.display = 'none';
+    this.disabled = false;
+    if (count > 0) {
+      toast('AI批量完成：生成了 ' + count + ' 条话术', 'success');
+      loadContentPage();
+    } else {
+      toast('AI批量生成失败，请稍后重试', 'error');
+    }
+  });
+  $('contentFormCancel').addEventListener('click', () => $('contentModal').classList.remove('open'));
+  $('contentModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+  $('contentFormSave').addEventListener('click', async () => {
+    const title = $('contentFormTitle').value.trim();
+    const content = $('contentFormContent').value.trim();
+    const catVal = $('contentFormCategory').value;
+    const category = CAT_MAP_REV[catVal] || catVal;
+    const tags = $('contentFormTags').value.split(/[,，]/).map(t => t.trim()).filter(Boolean);
+    if (!title || !content) { toast('请填写标题和内容', 'error'); return; }
+    try {
+      if (editingContentId) {
+        await api('PUT', '/content/templates/' + editingContentId, { category, title, content, tags });
+        toast('话术已更新', 'success');
+      } else {
+        await api('POST', '/content/templates', { category, title, content, tags });
+        toast('话术创建成功', 'success');
+      }
+      $('contentModal').classList.remove('open');
+      editingContentId = null;
+      loadContentPage();
+    } catch(e) {
+      // Fallback: save locally
+      contentStore.push({ id: 'c' + Date.now(), title, content, category, tags });
+      $('contentModal').classList.remove('open');
+      toast('话术已保存（本地）', 'success');
+      const activeFilter = document.querySelector('#contentFilter .filter-tab.active')?.dataset?.filter || 'all';
+      loadContent(activeFilter);
+    }
+  });
+  
+  // AI Generate for content factory
+  $('aiGenerateBtn').addEventListener('click', () => {
+    const tf = $('aiTopicField');
+    tf.style.display = tf.style.display === 'none' ? 'block' : 'none';
+  });
+  
+  $('aiDoGenerateBtn').addEventListener('click', async () => {
+    const topic = $('aiTopicInput').value.trim();
+    if (!topic) { toast('请输入生成主题', 'error'); return; }
+    const category = $('contentFormCategory').value;
+    $('aiGenLoading').style.display = 'block';
+    try {
+      const data = await api('POST', '/content/generate', { category, topic });
+      if (data.data) {
+        $('contentFormTitle').value = data.data.title;
+        $('contentFormContent').value = data.data.content;
+        toast('AI话术已生成！', 'success');
+        $('aiTopicField').style.display = 'none';
+      } else {
+        toast('AI生成失败', 'error');
+      }
+    } catch(e) {
+      // Fallback: generate locally
+      const catWords = {'pyq':'朋友圈','dm':'私信','yy':'邀约','xf':'续费','general':'通用'};
+      $('contentFormTitle').value = topic.length > 15 ? topic.substring(0,15)+'...' : topic;
+      $('contentFormContent').value = '[' + (catWords[category]||'通用') + '话术：' + topic + ']\n\n（AI服务暂时不可用，请手动编写或稍后重试）';
+      toast('AI服务暂不可用，已填充占位内容', 'info');
+      $('aiTopicField').style.display = 'none';
+    }
+    $('aiGenLoading').style.display = 'none';
+    $('aiTopicInput').value = '';
+  });
+  
+  // Knowledge modal
+  $('newKnowledgeBtn').addEventListener('click', () => {
+    editingKnowledgeId = null;
+    $('knowledgeFormTitle').textContent = '新建知识条目';
+    $('knowledgeFormTitleInput').value = '';
+    $('knowledgeFormContent').value = '';
+    $('knowledgeFormCategory').value = '运营';
+    $('knowledgeFormTags').value = '';
+    $('knowledgeFormSource').value = '';
+    $('knowledgeModal').classList.add('open');
+  });
+  $('knowledgeFormCancel').addEventListener('click', () => $('knowledgeModal').classList.remove('open'));
+  $('knowledgeModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+  $('knowledgeFormSave').addEventListener('click', async () => {
+    const title = $('knowledgeFormTitleInput').value.trim();
+    const content = $('knowledgeFormContent').value.trim();
+    const category = $('knowledgeFormCategory').value;
+    const tags = $('knowledgeFormTags').value.split(/[,，]/).map(t => t.trim()).filter(Boolean);
+    const source = $('knowledgeFormSource').value.trim() || '手动添加';
+    if (!title || !content) { toast('请填写标题和内容', 'error'); return; }
+    try {
+      if (editingKnowledgeId) {
+        await api('PUT', '/knowledge/' + editingKnowledgeId, { title, content, category, tags, source });
+        toast('更新成功', 'success');
+      } else {
+        await api('POST', '/knowledge', { title, content, category, tags, source });
+        toast('创建成功', 'success');
+      }
+      $('knowledgeModal').classList.remove('open');
+      loadKnowledgePage();
+    } catch(e) { toast('保存失败: ' + e.message, 'error'); }
+  });
+  
+  // Settings
+  // Tags input
+  const tagContainer = $('tagContainer');
+  const tagInput = $('tagInput');
+  tagInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      e.preventDefault();
+      addTag(this.value.trim());
+      this.value = '';
+    }
+  });
+  tagContainer.addEventListener('click', function(e) {
+    if (e.target.classList.contains('tag-remove')) {
+      e.target.closest('.tag').remove();
+    }
+  });
+  
+  function addTag(text) {
+    const div = document.createElement('div');
+    div.className = 'tag';
+    div.dataset.tag = text;
+    div.innerHTML = '<span>' + text + '</span><span class="tag-remove">&times;</span>';
+    tagContainer.insertBefore(div, tagInput);
+  }
+  
+  $('saveSettingsBtn').addEventListener('click', async () => {
+    const name = $('settingsName').value.trim();
+    const campuses = parseInt($('settingsCampuses').value) || 1;
+    const staffCount = parseInt($('settingsStaff').value) || 0;
+    const courseTags = $('tagContainer').querySelectorAll('.tag[data-tag]');
+    const courseCategories = Array.from(courseTags).map(t => t.dataset.tag).filter(Boolean);
+    try {
+      const r = await api('PUT', '/org/profile', { name, campuses, staffCount, courseCategories });
+      if (r.ok) toast('设置已保存', 'success');
+      else toast('保存失败', 'error');
+    } catch(e) {
+      toast('保存失败: ' + e.message, 'error');
+    }
+  });
+  
+  // Period select
+  $('periodSelect').addEventListener('change', () => loadDashboard());
+  
+  // Diagnostics report
+  $('diagReportBtn').addEventListener('click', async () => {
+    const btn = $('diagReportBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在生成...';
+    try {
+      const data = await api('GET', '/diagnostics/report');
+      const r = data.data || {};
+      const s = r.summary || {};
+      let html = '<div style="padding:20px;">';
+      html += '<h3 style="margin-bottom:16px;font-size:18px;">经营诊断报告</h3>';
+      html += '<p style="font-size:12px;color:#6b7280;margin-bottom:16px;">报告期间: ' + r.period + ' | 生成时间: ' + fmtDate(r.generatedAt) + '</p>';
+      if (data.aiSummary) html += '<div style="background:linear-gradient(135deg,rgba(129,140,248,0.1),rgba(118,75,162,0.1));border:1px solid rgba(129,140,248,0.3);border-radius:12px;padding:16px;margin-bottom:16px;"><div style="font-weight:600;margin-bottom:8px;color:#818cf8;"><i class="fas fa-robot"></i> AI诊断摘要</div><div style="font-size:14px;line-height:1.7;color:#d1d5db;">' + data.aiSummary.replace(/\n/g,'<br>') + '</div></div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;">';
+      html += '<div class="card" style="text-align:center;padding:16px;"><div style="font-size:24px;font-weight:700;color:#22c55e;">¥' + (s.totalRevenue||0).toLocaleString() + '</div><div style="font-size:12px;color:#6b7280;">总营收</div></div>';
+      html += '<div class="card" style="text-align:center;padding:16px;"><div style="font-size:24px;font-weight:700;color:#818cf8;">' + s.completionRate + '%</div><div style="font-size:12px;color:#6b7280;">完成率</div></div>';
+      html += '<div class="card" style="text-align:center;padding:16px;"><div style="font-size:24px;font-weight:700;color:#f59e0b;">' + s.campusCount + '</div><div style="font-size:12px;color:#6b7280;">校区数</div></div>';
+      html += '<div class="card" style="text-align:center;padding:16px;"><div style="font-size:24px;font-weight:700;color:#3b82f6;">' + s.totalStudents + '</div><div style="font-size:12px;color:#6b7280;">新增学员</div></div>';
+      html += '</div>';
+      if (r.campusBreakdown && r.campusBreakdown.length) {
+        html += '<h4 style="margin-bottom:8px;font-size:14px;">校区详情</h4><div style="overflow-x:auto;"><table class="mapping-table"><thead><tr><th>校区</th><th>营收</th><th>目标</th><th>完成率</th><th>续费率</th></tr></thead><tbody>';
+        r.campusBreakdown.forEach(c => {
+          html += '<tr><td>' + c.name + '</td><td>¥' + (c.revenue||0).toLocaleString() + '</td><td>¥' + (c.target||0).toLocaleString() + '</td><td>' + c.completion + '%</td><td>' + c.renewal + '%</td></tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+      html += '<div style="margin-top:16px;text-align:right;"><button class="btn-primary" onclick="this.closest(\'.modal-content\').closest(\'.modal-overlay\').classList.remove(\'open\')">关闭</button></div>';
+      html += '</div>';
+      
+      // Use content modal as display modal
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.style.display = 'flex';
+      overlay.innerHTML = '<div class="modal-content" style="max-width:700px;max-height:85vh;overflow-y:auto;">' + html + '</div>';
+      overlay.addEventListener('click', function(e) { if (e.target === this) this.remove(); });
+      document.body.appendChild(overlay);
+    } catch(e) {
+      toast('报告生成失败', 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-stethoscope"></i> 诊断报告';
+  });
+  
+  // Export report
+  $('exportReportBtn').addEventListener('click', async () => {
+    try {
+      const period = ($('periodSelect')?.value || 'month');
+      const data = await api('GET', '/dashboard/summary?period=' + period);
+      const d = data.data || {};
+      const lines = [];
+      lines.push('=== 方舟智管经营报告 ===');
+      lines.push('期间: ' + d.period);
+      lines.push('');
+      lines.push('【营收】本月: ¥' + (d.revenue?.current||0).toLocaleString() + ' | 目标: ¥' + (d.revenue?.target||0).toLocaleString() + ' | 完成率: ' + d.revenue?.completion + '%');
+      lines.push('【续费】续费率: ' + d.renewal?.rate + '% | 目标: ' + d.renewal?.target + '%');
+      lines.push('【招生】新增学员: ' + d.enrollment?.newStudents + ' 人');
+      lines.push('');
+      if (d.campusRanking && d.campusRanking.length) {
+        lines.push('【校区排名】');
+        d.campusRanking.forEach((c, i) => {
+          lines.push('  ' + (i+1) + '. ' + c.name + ' 营收¥' + (c.revenue||0).toLocaleString() + ' 完成率' + c.completion + '% 续费' + c.renewal + '%');
+        });
+      }
+      if (d.alerts && d.alerts.length) {
+        lines.push('');
+        lines.push('【预警】');
+        d.alerts.forEach(a => lines.push('  [' + a.level + '] ' + a.message));
+      }
+      lines.push('');
+      lines.push('生成时间: ' + new Date().toLocaleString('zh-CN'));
+      const text = lines.join('\n');
+      const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '经营报告_' + d.period + '.txt';
+      a.click();
+      toast('报告已导出', 'success');
+    } catch(e) {
+      toast('导出失败: ' + e.message, 'error');
+    }
+  });
+
+  // Chart type toggle
+  document.querySelectorAll('.chart-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      currentChartType = this.dataset.chart;
+      // Will be redrawn when loadDashboard runs next
+      // Store the trend data from last load
+      if (window._lastTrendData) renderChart(window._lastTrendData);
+    });
+  });
+  
+  // Alert filter buttons
+  document.querySelectorAll('#alertFilter .filter-tab').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#alertFilter .filter-tab').forEach(b => { b.style.background = 'transparent'; b.style.color = '#6b7280'; });
+      this.style.background = 'rgba(129,140,248,0.15)'; this.style.color = '#818cf8';
+      const level = this.dataset.level;
+      const filtered = level === 'all' ? _allAlertData : _allAlertData.filter(a => a.level === level);
+      renderFilteredAlerts(filtered);
+    });
+  });
+  
+  // Batch resolve alerts
+  $('batchResolveBtn')?.addEventListener('click', async function() {
+    if (_allAlertData.length === 0) { toast('没有待处理的预警', 'info'); return; }
+    try {
+      await api('POST', '/alerts/batch-resolve', {});
+      _allAlertData.forEach(a => resolvedAlerts.add(a.id || a._id));
+      const filtered = document.querySelector('#alertFilter .filter-tab.active')?.dataset?.level || 'all';
+      const showData = filtered === 'all' ? _allAlertData : _allAlertData.filter(a => a.level === filtered);
+      renderFilteredAlerts(showData.map(a => ({...a, resolved: true})));
+      toast('全部预警已处理 ✓', 'success');
+    } catch(e) {
+      // Fallback
+      _allAlertData.forEach(a => resolvedAlerts.add(a.id || a._id));
+      document.querySelectorAll('.alert-item').forEach(el => el.classList.add('resolved'));
+      toast('全部预警已处理 ✓', 'success');
+    }
+  });
+  
+  // Init upload zone
+  initUploadZone();
+  
+  // Init brain
+  initBrain();
+  
+  // Load initial data
+  loadDashboard();
+  loadKnowledgePage();
+}
+
+// ---------- Bootstrap ----------
+document.addEventListener('DOMContentLoaded', function() {
+  if (checkAuth()) {
+    init();
+  }
+  
+  // Login handlers
+  $('loginBtn').addEventListener('click', doLogin);
+  $('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  $('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginPass').focus(); });
+  
+  // Init demo data silently in background
+  setTimeout(() => {
+    if (token()) {
+      api('POST', '/api/demo/init').catch(() => {});
+    }
+  }, 1000);
+});
+
+})();
+</script>
+</body>
+</html>

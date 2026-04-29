@@ -1,0 +1,104 @@
+{
+  "loginUsers": [
+    {
+      "username": "sam",
+      "password": "sam888",
+      "role": "校长"
+    }
+  ],
+  "dashboard": {
+    "revenue": 2395000,
+    "target": 3000000,
+    "renewalRate": 72.6,
+    "newStudents": 88,
+    "newStudentTarget": 100,
+    "revenueTrend": [
+      {
+        "month": "2024-10",
+        "value": 1850000
+      },
+      {
+        "month": "2024-11",
+        "value": 1920000
+      },
+      {
+        "month": "2024-12",
+        "value": 2100000
+      },
+      {
+        "month": "2025-01",
+        "value": 1780000
+      },
+      {
+        "month": "2025-02",
+        "value": 1650000
+      },
+      {
+        "month": "2025-03",
+        "value": 2395000
+      }
+    ],
+    "studentStructure": [
+      {
+        "label": "语数英",
+        "value": 156
+      },
+      {
+        "label": "思维训练",
+        "value": 98
+      },
+      {
+        "label": "其他",
+        "value": 88
+      }
+    ],
+    "campusRanking": [
+      {
+        "name": "浦东校区",
+        "revenue": 582000
+      },
+      {
+        "name": "徐汇校区",
+        "revenue": 523000
+      },
+      {
+        "name": "静安校区",
+        "revenue": 491000
+      },
+      {
+        "name": "闵行校区",
+        "revenue": 412000
+      },
+      {
+        "name": "虹口校区",
+        "revenue": 387000
+      }
+    ],
+    "alerts": [
+      {
+        "level": "red",
+        "title": "虹口校区营收完成率仅65%，低于预警线",
+        "time": "2026-04-29T13:01:59.931Z",
+        "resolved": false
+      },
+      {
+        "level": "orange",
+        "title": "静安校区续费率环比下降3.2%",
+        "time": "2026-04-29T13:01:59.931Z",
+        "resolved": false
+      },
+      {
+        "level": "yellow",
+        "title": "4月有23名学员续费即将到期",
+        "time": "2026-04-29T13:01:59.931Z",
+        "resolved": false
+      },
+      {
+        "level": "blue",
+        "title": "浦东校区连续3月排名第一",
+        "time": "2026-04-29T13:01:59.931Z",
+        "resolved": false
+      }
+    ]
+  }
+}
