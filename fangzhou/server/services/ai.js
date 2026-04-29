@@ -45,28 +45,36 @@ const TEMPLATE_DEFS = {
  * 呼叫 DeepSeek API
  */
 async function callDeepSeek(messages, options = {}) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
-    },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
-      messages,
-      temperature: options.temperature || 0.3,
-      max_tokens: options.maxTokens || 2000,
-      stream: false
-    })
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`DeepSeek API error: ${response.status} - ${err}`);
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages,
+        temperature: options.temperature || 0.3,
+        max_tokens: options.maxTokens || 2000,
+        stream: false
+      }),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`DeepSeek API error: ${response.status} - ${err}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
 }
 
 /**
@@ -118,48 +126,118 @@ ${tablePreview}`;
 
 /**
  * 从表格数据中提取字段
+ * 策略：先让AI识别字段映射（只送前5行预览），再用映射规则自动处理所有行
  * 输入：识别的模板类型 + 表格数据
- * 输出：{ fields: {month: '2026-04', revenue: 120000, ...}, extracted_rows: [...] }
+ * 输出：{ field_mapping, records: [...], total_rows }
  */
 async function extractFields(templateType, headers, allRows) {
   const template = TEMPLATE_DEFS[templateType];
-  if (!template) return { fields: {}, extracted_rows: [] };
+  if (!template) return { field_mapping: {}, records: [], total_rows: 0 };
 
-  const tableData = [
+  const preview = [
     '表头: ' + headers.join(' | '),
     ...allRows.slice(0, 5).map(r => '行: ' + r.join(' | '))
   ].join('\n');
 
+  // Step 1: AI determines field mapping from preview
   const prompt = `你是一个教培数据提取专家。表格类型是"${template.name}"。
 模板字段定义：${JSON.stringify(template.fields)}
 
-表格数据：
-${tableData}
+表格数据（前5行预览）：
+${preview}
 
-请分析表格，将数据提取到模板字段中。注意：
-- 表头可能不是直接匹配的（如"金额"对应"revenue"，"学员"对应"student_name"）
-- 日期格式需要标准化为YYYY-MM
-- 金额去掉货币符号转为数字
-- 每行数据一条记录
+请分析表头和数据，判断每个模板字段对应表格的哪一列（用列名匹配）。
+注意：
+- 列名可能是近义词（"金额"→"revenue"，"学员"→"student_name"）
+- 日期标准化为YYYY-MM
+- 金额去掉¥$,转为数字
+- 某些字段可能不在表中（留空）
 
-返回JSON格式：
-{
-  "field_mapping": { "原表头1": "模板字段1", "原表头2": "模板字段2" },
-  "records": [
-    { "month": "2026-04", "revenue": 120000, ... }
-  ],
-  "total_rows": 数字,
-  "notes": "提取备注"
+返回JSON：{
+  "field_mapping": { "原始列名": "template字段key" },
+  "notes": "映射说明"
 }`;
 
   try {
     const result = await callDeepSeek([
       { role: 'system', content: '你是教培数据提取专家，只输出JSON。' },
       { role: 'user', content: prompt }
-    ], { temperature: 0.2, maxTokens: 4000 });
+    ], { temperature: 0.2, maxTokens: 2000 });
 
     const parsed = JSON.parse(result.replace(/```json|```/g, '').trim());
-    return parsed;
+    const fieldMapping = parsed.field_mapping || {};
+    
+    // Build reverse mapping: template field -> column index
+    const colIndex = {};
+    Object.keys(fieldMapping).forEach(header => {
+      const idx = headers.indexOf(header);
+      if (idx >= 0) {
+        colIndex[fieldMapping[header]] = idx;
+      }
+    });
+
+    // Step 2: Apply mapping to ALL rows programmatically
+    const records = [];
+    const fieldKeys = template.fields.map(f => f.key);
+    
+    for (const row of allRows) {
+      const record = {};
+      let hasData = false;
+      
+      fieldKeys.forEach(key => {
+        const idx = colIndex[key];
+        if (idx !== undefined && idx < row.length && String(row[idx]).trim()) {
+          const val = String(row[idx]).trim();
+          const fieldDef = template.fields.find(f => f.key === key);
+          
+          if (fieldDef && fieldDef.type === 'number') {
+            // Parse number: remove currency symbols, commas
+            const cleaned = val.replace(/[¥$￥,，\s]/g, '');
+            const num = parseFloat(cleaned);
+            record[key] = isNaN(num) ? 0 : num;
+          } else if (key === 'month') {
+            // Normalize date to YYYY-MM
+            const dateMatch = val.match(/(\d{4})[年\/-](\d{1,2})[月]?/);
+            if (dateMatch) {
+              record[key] = dateMatch[1] + '-' + String(dateMatch[2]).padStart(2, '0');
+            } else {
+              record[key] = val;
+            }
+          } else if (key === 'expiry_date') {
+            // Try to parse date
+            const dateMatch = val.match(/(\d{4})[年\/-](\d{1,2})[月]?(?:[\/-](\d{1,2})[日]?)?/);
+            if (dateMatch) {
+              const d = dateMatch[3] ? String(dateMatch[3]).padStart(2, '0') : '01';
+              record[key] = dateMatch[1] + '-' + String(dateMatch[2]).padStart(2, '0') + '-' + d;
+            } else {
+              record[key] = val;
+            }
+          } else if (key === 'conversion_rate') {
+            // Handle percentage values
+            const cleaned = String(val).replace(/[%\s]/g, '');
+            const num = parseFloat(cleaned);
+            record[key] = isNaN(num) ? 0 : (num > 1 ? num / 100 : num);
+          } else {
+            record[key] = val;
+          }
+          hasData = true;
+        } else {
+          record[key] = '';
+        }
+      });
+      
+      if (hasData) {
+        records.push(record);
+      }
+    }
+
+    return {
+      field_mapping: fieldMapping,
+      records: records,
+      total_rows: records.length,
+      notes: parsed.notes || `自动映射${records.length}行数据`
+    };
+
   } catch (e) {
     console.error('Field extraction failed:', e.message);
     return { field_mapping: {}, records: [], total_rows: 0, notes: e.message };

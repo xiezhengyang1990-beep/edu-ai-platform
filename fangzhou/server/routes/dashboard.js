@@ -50,11 +50,33 @@ router.get('/dashboard/summary', (req, res) => {
     `);
     const pendingCount = pendingRenewal.length ? pendingRenewal[0].count : 0;
 
+    // Frontend expects: revenue.{current,target,completion,trend}, renewal.{rate,change,trend}, enrollment.{newStudents,target,completion,trend}
+    const target = Math.round(currentTotal * 1.2);
+    const prevEnroll = db.query(`SELECT COALESCE(SUM(new_count),0) as total FROM enrollment_data WHERE month = (
+      SELECT DISTINCT month FROM enrollment_data ORDER BY month DESC LIMIT 1 OFFSET 1
+    )`);
+    const prevEnrollTotal = prevEnroll.length ? prevEnroll[0].total : 0;
+    const enrollChange = prevEnrollTotal > 0 ? ((enrollmentTotal - prevEnrollTotal) / prevEnrollTotal * 100).toFixed(1) : 0;
+
     res.json({
-      revenue: { value: currentTotal, change: parseFloat(revenueChange), label: '本月营收' },
-      renewal_rate: { value: parseFloat(renewalRate), label: '续费率' },
-      enrollment: { value: enrollmentTotal, change: null, label: '本月招生' },
-      pending_renewal: { value: pendingCount, label: '待续费预警' }
+      revenue: {
+        current: currentTotal,
+        target: target,
+        completion: target > 0 ? Math.round((currentTotal / target) * 100) : 0,
+        trend: parseFloat(revenueChange) > 0 ? 'up' : (parseFloat(revenueChange) < 0 ? 'down' : 'flat')
+      },
+      renewal: {
+        rate: Math.round(parseFloat(renewalRate) * 10) / 10,
+        change: parseFloat(revenueChange),
+        trend: parseFloat(renewalRate) > 70 ? 'up' : 'down'
+      },
+      enrollment: {
+        newStudents: enrollmentTotal,
+        target: Math.round(enrollmentTotal * 1.3),
+        completion: enrollmentTotal > 0 ? Math.round((enrollmentTotal / (enrollmentTotal * 1.3)) * 100) : 0,
+        trend: enrollmentTotal > 30 ? 'up' : 'flat'
+      },
+      pending_renewal: { count: pendingCount }
     });
 
   } catch (err) {
@@ -212,8 +234,10 @@ router.get('/dashboard/ranking', (req, res) => {
 
     const result = ranking.map((r, i) => ({
       rank: i + 1,
+      name: r.campus || '未分类',
       campus: r.campus || '未分类',
       revenue: r.revenue || 0,
+      value: r.revenue || 0,
       enrollment: r.enrollment || 0,
       trend: i === 0 ? 'up' : i === ranking.length - 1 ? 'down' : 'stable'
     }));

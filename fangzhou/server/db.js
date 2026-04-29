@@ -175,7 +175,8 @@ function run(sql, params = []) {
 }
 
 function getLastId() {
-  return db.exec("SELECT last_insert_rowid() as id")[0].values[0][0];
+  // Use MAX which is more reliable than last_insert_rowid in sql.js
+  return db.exec("SELECT MAX(id) as id FROM uploaded_files")[0].values[0][0] || 0;
 }
 
 module.exports = { getDb, query, run, getLastId, save };
