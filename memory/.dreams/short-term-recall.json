@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-29T18:29:36.935Z",
+  "updatedAt": "2026-04-30T07:06:19.884Z",
   "entries": {
     "memory:memory/2026-04-30.md:1:30": {
       "key": "memory:memory/2026-04-30.md:1:30",
@@ -9,15 +9,16 @@
       "endLine": 30,
       "source": "memory",
       "snippet": "# 2026-04-30 Daily Notes ## Date: Thursday, April 30, 2026 (Asia/Shanghai) --- ### 方舟智管 ArkInsight — 项目进展（凌晨状态更新） **当前阶段：** 深夜通宵开发，用户已睡。我是监工，子代理是员工。 #### 核心原则（用户反复强调） - 长任务：按板块拆，一个做完再做下一个 - 开始前先问用户（语音描述业务逻辑），弄明白再动手 - 自己验证完再汇报，3次不通跳过，不卡死 - 小步提交（每次改完 git commit） - 不打扰用户睡觉 - **API Key 规则（23:58 新增）**：子代理 → 阿里云百炼 `sk-129547aa04b74d578561664666b89c8c`（免费 token，用完换 key，崩了不心疼）；主代理（我）→ DeepSeek `sk-0bdc794856cd43c389eb5e7ac476ed5d`（稳，不能崩） #### 项目配置 - Node v24.14.0, npm packages: express@5.2.1, xlsx, sql.js, multer - better-sqlite3 编译失败（node-gyp make 在容器环境下不行） - 数据库决定用 sql.js（纯 JS/WASM，无原生依赖） - DeepSeek API key: `sk-0bdc794856cd43c389eb5e7ac476ed5d` - 阿里云百炼 API key: `sk-129547aa04b74d57856166466",
-      "recallCount": 1,
+      "recallCount": 2,
       "dailyCount": 0,
       "groundedCount": 0,
-      "totalScore": 1,
+      "totalScore": 2,
       "maxScore": 1,
       "firstRecalledAt": "2026-04-29T18:29:36.935Z",
-      "lastRecalledAt": "2026-04-29T18:29:36.935Z",
+      "lastRecalledAt": "2026-04-30T07:06:19.884Z",
       "queryHashes": [
-        "eaadf663a835"
+        "eaadf663a835",
+        "bc68354646f8"
       ],
       "recallDays": [
         "2026-04-30"
@@ -49,6 +50,161 @@
       "lastRecalledAt": "2026-04-29T18:29:36.935Z",
       "queryHashes": [
         "eaadf663a835"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "home/node",
+        "openclaw/workspace/fangzhou",
+        "openclaw/workspace/数据表/给oc",
+        "49g/27g/21g",
+        "dev/vda3",
+        "04/30",
+        "db.json",
+        "sql.js"
+      ]
+    },
+    "memory:memory/2026-04-30.md:266:288": {
+      "key": "memory:memory/2026-04-30.md:266:288",
+      "path": "memory/2026-04-30.md",
+      "startLine": 266,
+      "endLine": 288,
+      "source": "memory",
+      "snippet": "#### ✅ AI智囊 API 验证 - DeepSeek 接口正常，实时返回带上下文的分析结果 - 测试问\"本月营收怎么样\" → 正确返回 ¥163,180 及走势分析 ✅ - 测试问\"你配置API了吗\" → AI 回答\"无法配置API\"（语言模型特性，不是故障） - Sam 看到的\"没有设API\"是 AI 的真实回答（Sam 可能问了API相关问题） - 联网搜索已集成到 brain/chat，前端有 checkbox 开关 #### ⚠️ 前端的 mock fallback 问题 - `getMockBrainReply()` 硬编码假数据（如\"本月目标¥3,000,000\"） - 当 brain/chat API 失败时，前端退回 mock 数据（可能给用户虚假印象） - 问题不大但需要记住：mock 是临时 fallback，API 正常工作 #### 技术备忘（追加） - **CSS flex + canvas = 死亡组合**：canvas 在 flex 容器中 `align-items:flex-start` 会高度=0 - 每次改 CSS 必须用 `cat` 验证实际渲染内容，不能只检查编辑器的文件 - server 日志：`/tmp/fangzhou3.log` - 前端 HTML 确认命令：`curl -s http://localhost:18898/index.html | grep -c 'responsive: false'` - 当前 session 进入内存快照轮次，Sam 可能随时醒来反馈 - 还剩文件处理任务未做（春续暑、课时表→续费线",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-30T07:06:19.884Z",
+      "lastRecalledAt": "2026-04-30T07:06:19.884Z",
+      "queryHashes": [
+        "bc68354646f8"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "brain/chat",
+        "align-items",
+        "flex-start",
+        "tmp/fangzhou3.log",
+        "18898/index.html",
+        "智囊",
+        "api",
+        "验证"
+      ]
+    },
+    "memory:memory/2026-04-30.md:131:153": {
+      "key": "memory:memory/2026-04-30.md:131:153",
+      "path": "memory/2026-04-30.md",
+      "startLine": 131,
+      "endLine": 153,
+      "source": "memory",
+      "snippet": "#### 核心原则（用户反复强调） - 长任务：按板块拆，一个做完再做下一个 - 开始前先问用户（语音描述业务逻辑），弄明白再动手 - 自己验证完再汇报，3次不通跳过，不卡死 - 小步提交（每次改完 git commit） - 不打扰用户睡觉 - **API Key 规则（23:58 新增）**：子代理 → 阿里云百炼 `sk-129547aa04b74d578561664666b89c8c`（免费 token，用完换 key，崩了不心疼）；主代理（我）→ DeepSeek `sk-0bdc794856cd43c389eb5e7ac476ed5d`（稳，不能崩） #### 项目配置 - Node v24.14.0, npm packages: express@5.2.1, xlsx, sql.js, multer - better-sqlite3 编译失败（node-gyp make 在容器环境下不行） - 数据库决定用 sql.js（纯 JS/WASM，无原生依赖） - DeepSeek API key: `sk-0bdc794856cd43c389eb5e7ac476ed5d` - 阿里云百炼 API key: `sk-129547aa04b74d578561664666b89c8c` - 项目路径：`/home/node/.openclaw/workspace/fangzhou/` - 数据文件路径：`/home/node/.openclaw/workspace/数据表/给oc/`（10个真实 Excel 文件） - 工作区磁盘：overlay 49G/27G/21G，",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-30T07:06:19.884Z",
+      "lastRecalledAt": "2026-04-30T07:06:19.884Z",
+      "queryHashes": [
+        "bc68354646f8"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "v24.14.0",
+        "5.2.1",
+        "sql.js",
+        "better-sqlite3",
+        "node-gyp",
+        "js/wasm",
+        "home/node",
+        "openclaw/workspace/fangzhou"
+      ]
+    },
+    "memory:memory/2026-04-30.md:231:254": {
+      "key": "memory:memory/2026-04-30.md:231:254",
+      "path": "memory/2026-04-30.md",
+      "startLine": 231,
+      "endLine": 254,
+      "source": "memory",
+      "snippet": "- `xlsx`库读取大文件时如果`sheet[]`的range包含1048576行会超时（即使只有少量实际数据） - 上传时的截断修复：`sheet['!ref'].split(':')[1]` 替换为已截断引用 - Bing HTML结构：`<li class=\"b_algo\"><h2><a href=\"URL\">TITLE</a></h2><p class=\"b_lineclamp\">SNIPPET</p></li>` - search.js 正确版本位于 `server/services/search.js` - 阿里云百炼API：qwen-plus模型，`sk-129547aa04b74d578561664666b89c8c` **👤 用户信息更新** - 用户已睡（约02:50），要8点看报告 - 称呼Sam，不要叫\"哥\" - 风格：直接、不耐烦、要验证结果不要过程描述 --- ### 深夜进展（04/30 03:04 → 03:21 — 第7次图表修改及AI智囊排查） #### ❸ Chart 第7次修改：发现致命回退 go 了（追记） - **问题**：Sam 反馈第7次修改后图表依然无效，AI智囊说\"没有设API\" - **排查过程**： 1. 确认服务运行正确（PID 4556, port 18898，从 correct `fangzhou/server/index.js` 启动） 2. API 直接 curl 测试：`/api/brain/chat` 返回真实 DeepSeek 响应 ✅ 3. Dashboard API 返回干净 6",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-30T07:06:19.884Z",
+      "lastRecalledAt": "2026-04-30T07:06:19.884Z",
+      "queryHashes": [
+        "bc68354646f8"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "b-algo",
+        "b-lineclamp",
+        "search.js",
+        "server/services/search.js",
+        "qwen-plus模型",
+        "04/30",
+        "fangzhou/server/index.js",
+        "api/brain/chat"
+      ]
+    },
+    "memory:memory/2026-04-30.md:149:172": {
+      "key": "memory:memory/2026-04-30.md:149:172",
+      "path": "memory/2026-04-30.md",
+      "startLine": 149,
+      "endLine": 172,
+      "source": "memory",
+      "snippet": "#### 已完成状态（04/30 02:35） - ✅ 数据库升级：db.json → SQLite (sql.js)，6张表 - ✅ 后端子服务：Express 5 + multer + XLSX + AI 模块 - ✅ 上传管道：AI模板匹配(营收/续费/招生) → 字段自动提取 → 入库 - ✅ 驾驶舱API：summary/trend/alerts/ranking/diagnosis/unified - ✅ AI智囊聊天：DeepSeek带经营数据上下文 - ✅ 所有API端点对齐：20+前端兼容路径 - ✅ 全部10个真实文件已上传 - ✅ 大文件保护：sheet_to_json 前截断不合理1M行范围 - ✅ 阿里云百炼上线：表格识别/字段提取已切到 qwen-plus - ✅ 图表修复：onResize循环修复 + 2023-06离群数据清理 - ✅ DeepSeek API 30s超时保护 - 🔄 子代理已拉起，正在完成闭环1剩余工作（联网搜索、智囊对接、小修） #### 当前数据状态 - 营收：¥163,180（2026年4月，7个月趋势数据） - 续费：25%（4条记录含流失预警） - 招生：121人（森宏56 + 上南65） - 预警：营收下降51.4%告警、续费到期提醒、学员流失 #### 已知问题 1. ✅ 【语言】春续暑待跟进学员明细及动作.xlsx — 已修复，添加范围截断后可正常上传2000行 2. 续费数据只有样本（无真实续费文件成功导入） 3. TMK文件（68条）导入为招生类型但new_count都是0（非聚合数据）",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-30T07:06:19.884Z",
+      "lastRecalledAt": "2026-04-30T07:06:19.884Z",
+      "queryHashes": [
+        "bc68354646f8"
+      ],
+      "recallDays": [
+        "2026-04-30"
+      ],
+      "conceptTags": [
+        "04/30",
+        "db.json",
+        "sql.js",
+        "营收/续费/招生",
+        "sheet-to-json",
+        "表格识别/字段提取已切到",
+        "qwen-plus",
+        "2023-06离群数据清理"
+      ]
+    },
+    "memory:memory/2026-04-30.md:25:50": {
+      "key": "memory:memory/2026-04-30.md:25:50",
+      "path": "memory/2026-04-30.md",
+      "startLine": 25,
+      "endLine": 50,
+      "source": "memory",
+      "snippet": "- 项目路径：`/home/node/.openclaw/workspace/fangzhou/` - 数据文件路径：`/home/node/.openclaw/workspace/数据表/给oc/`（10个真实 Excel 文件） - 工作区磁盘：overlay 49G/27G/21G，/dev/vda3 #### 已完成状态（04/30 02:35） - ✅ 数据库升级：db.json → SQLite (sql.js)，6张表 - ✅ 后端子服务：Express 5 + multer + XLSX + AI 模块 - ✅ 上传管道：AI模板匹配(营收/续费/招生) → 字段自动提取 → 入库 - ✅ 驾驶舱API：summary/trend/alerts/ranking/diagnosis/unified - ✅ AI智囊聊天：DeepSeek带经营数据上下文 - ✅ 所有API端点对齐：20+前端兼容路径 - ✅ 全部10个真实文件已上传 - ✅ 大文件保护：sheet_to_json 前截断不合理1M行范围 - ✅ 阿里云百炼上线：表格识别/字段提取已切到 qwen-plus - ✅ 图表修复：onResize循环修复 + 2023-06离群数据清理 - ✅ DeepSeek API 30s超时保护 - 🔄 子代理已拉起，正在完成闭环1剩余工作（联网搜索、智囊对接、小修） #### 当前数据状态 - 营收：¥163,180（2026年4月，7个月趋势数据） - 续费：25%（4条记录含流失预警） - 招生：121人（森宏56 + 上南65） - 预警：营收下降5",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-30T07:06:19.884Z",
+      "lastRecalledAt": "2026-04-30T07:06:19.884Z",
+      "queryHashes": [
+        "bc68354646f8"
       ],
       "recallDays": [
         "2026-04-30"
