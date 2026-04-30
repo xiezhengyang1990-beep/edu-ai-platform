@@ -351,12 +351,22 @@ app.post('/api/brain/chat', async (req, res) => {
       }
     }
 
-    // Add context data
+    // Add context data — revenue, enrollment, and renewal follow-up
     const summary = db.query(`
       SELECT 
         (SELECT COALESCE(SUM(revenue),0) FROM revenue_data WHERE month = (SELECT MAX(month) FROM revenue_data)) as revenue,
         (SELECT COALESCE(SUM(new_count),0) FROM enrollment_data WHERE month = (SELECT MAX(month) FROM enrollment_data)) as enrollment,
         (SELECT COUNT(*) FROM renewal_data WHERE status = 'lost') as lost
+    `);
+    const renewalFollowUp = db.query(`
+      SELECT COUNT(*) as total, 
+        SUM(CASE WHEN status = '待跟进-课时耗尽' THEN 1 ELSE 0 END) as urgent,
+        SUM(CASE WHEN status = '正常跟进' THEN 1 ELSE 0 END) as normal
+      FROM renewal_data WHERE month = '2026-04'
+    `);
+    const topCampuses = db.query(`
+      SELECT campus, COUNT(*) as cnt FROM renewal_data 
+      WHERE status = '待跟进-课时耗尽' GROUP BY campus ORDER BY cnt DESC LIMIT 5
     `);
 
     const contextMsg = {
@@ -368,7 +378,10 @@ app.post('/api/brain/chat', async (req, res) => {
 3. 分析校区表现差异
 4. 提供续费提升、招生优化、成本控制等策略
 
-当前经营数据：本月营收 ${summary[0]?.revenue || 0}元，本月招生 ${summary[0]?.enrollment || 0}人，流失学员 ${summary[0]?.lost || 0}人。${webContext}
+当前经营数据：本月营收 ${summary[0]?.revenue || 0}元，本月招生 ${summary[0]?.enrollment || 0}人，流失学员 ${summary[0]?.lost || 0}人。
+续费跟进：共${renewalFollowUp[0]?.total || 0}名学员在跟进中，其中${renewalFollowUp[0]?.urgent || 0}人课时已耗尽需紧急续费，${renewalFollowUp[0]?.normal || 0}人正常跟进。
+急需续费前5校区：${topCampuses.map(c => `${c.campus}(${c.cnt}人)`).join('、') || '暂无'}。
+续费分类：867人不接受10次密课方案，1106人确定报名等待缴费，367人想继续WTE/SBS/iG课程。${webContext}
 
 风格：专业、直接、数据说话。用中文回答，200字以内。`
     };

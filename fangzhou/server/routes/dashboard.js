@@ -25,16 +25,20 @@ router.get('/dashboard/summary', (req, res) => {
     const currentTotal = revenue.length ? revenue[0].total : 0;
     const revenueChange = prevTotal > 0 ? ((currentTotal - prevTotal) / prevTotal * 100).toFixed(1) : 0;
 
-    // 续费率
+    // 续费率 — 只统计有明确状态的学员（renewed/lost/待跟进-课时耗尽）
     const renewal = db.query(`
       SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN status = 'renewed' THEN 1 ELSE 0 END) as renewed,
-        SUM(CASE WHEN status = 'lost' THEN 1 ELSE 0 END) as lost
+        SUM(CASE WHEN status = 'lost' THEN 1 ELSE 0 END) as lost,
+        SUM(CASE WHEN status = '待跟进-课时耗尽' THEN 1 ELSE 0 END) as urgent
       FROM renewal_data
     `);
-    const r = renewal[0] || { total: 0, renewed: 0, lost: 0 };
-    const renewalRate = r.total > 0 ? ((r.renewed / r.total) * 100).toFixed(1) : 0;
+    const r = renewal[0] || { total: 0, renewed: 0, lost: 0, urgent: 0 };
+    // 仅计入有明确续费决策的记录
+    const renewalBase = r.renewed + r.lost;
+    const renewalRate = renewalBase > 0 ? ((r.renewed / renewalBase) * 100).toFixed(1) :
+      (r.urgent > 0 ? 0 : 0); // 暂无决策时用待跟进数据估算
 
     // 本月招生
     const enrollment = db.query(`
@@ -43,12 +47,17 @@ router.get('/dashboard/summary', (req, res) => {
     `);
     const enrollmentTotal = enrollment.length ? enrollment[0].total : 0;
 
-    // 待续费预警
+    // 待续费预警 — 课时耗尽 + 即将到期
     const pendingRenewal = db.query(`
       SELECT COUNT(*) as count FROM renewal_data 
-      WHERE status = 'pending' AND expiry_date <= date('now', '+30 days')
+      WHERE status = '待跟进-课时耗尽' OR status = 'pending'
     `);
     const pendingCount = pendingRenewal.length ? pendingRenewal[0].count : 0;
+    // 总续费风险学员
+    const atRisk = db.query(`
+      SELECT COUNT(*) as count, ROUND(AVG(remaining_hours), 1) as avg_hours
+      FROM renewal_data WHERE status = '待跟进-课时耗尽'
+    `);
 
     // Frontend expects: revenue.{current,target,completion,trend}, renewal.{rate,change,trend}, enrollment.{newStudents,target,completion,trend}
     const target = Math.round(currentTotal * 1.2);
@@ -81,6 +90,7 @@ router.get('/dashboard/summary', (req, res) => {
         trend: enrollmentTotal > 30 ? 'up' : 'flat'
       },
       pending_renewal: { count: pendingCount },
+      renewal_alerts: atRisk.length > 0 ? { urgent: atRisk[0].count, avg_hours: atRisk[0].avg_hours } : { urgent: 0, avg_hours: 0 },
       monthlyTrend: monthlyTrend  // for chart rendering
     });
 
@@ -134,24 +144,38 @@ router.get('/dashboard/alerts', (req, res) => {
   try {
     const alerts = [];
 
-    // 1. 续费预警 - 30天内到期未续
+    // 1. 续费预警 - 课时耗尽需立即跟进
     const pending = db.query(`
-      SELECT student_name, course, expiry_date FROM renewal_data 
-      WHERE status = 'pending' AND expiry_date <= date('now', '+30 days')
-      ORDER BY expiry_date LIMIT 10
+      SELECT student_name, course, campus, remaining_hours, teacher 
+      FROM renewal_data 
+      WHERE status = '待跟进-课时耗尽'
+      ORDER BY remaining_hours ASC LIMIT 10
     `);
     pending.forEach(p => {
-      const daysLeft = Math.ceil((new Date(p.expiry_date) - new Date()) / (1000 * 60 * 60 * 24));
       alerts.push({
         type: 'renewal',
-        level: daysLeft <= 7 ? 'red' : daysLeft <= 14 ? 'orange' : 'yellow',
-        title: `${p.student_name} 即将到期`,
-        message: `${p.course} · ${p.expiry_date}到期，剩${daysLeft}天`,
-        time: p.expiry_date,
+        level: 'red',
+        title: `${p.student_name} 课时已耗尽`,
+        message: `${p.campus || ''} · ${p.course || ''} · 余0课时`,
+        time: new Date().toISOString().split('T')[0],
         actionable: true,
         action_label: '跟进续费'
       });
     });
+    // 续费总体预警
+    const urgentCount = db.query(`SELECT COUNT(*) as cnt FROM renewal_data WHERE status = '待跟进-课时耗尽'`);
+    const totalAlert = db.query(`SELECT COUNT(*) as cnt FROM renewal_data WHERE status LIKE '待跟进%'`);
+    if (urgentCount[0]?.cnt > 0) {
+      alerts.push({
+        type: 'renewal',
+        level: 'orange',
+        title: '续费跟进提醒',
+        message: `共${urgentCount[0].cnt}名学员课时已耗尽，${totalAlert[0]?.cnt || 0}人待跟进`,
+        time: new Date().toISOString().split('T')[0],
+        actionable: true,
+        action_label: '查看详情'
+      });
+    }
 
     // 2. 营收预警 - 月度营收下降
     const revenueTrend = db.query(`
